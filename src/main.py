@@ -4,7 +4,7 @@
 from entry import Entries, Entry
 from reference import References, Reference
 from expense import Expenses
-import sys
+from BNC_MasterCard_parser import BNC_MasterCard_parser
 import argparse
 
 
@@ -65,8 +65,10 @@ def main():
     # Argument verification
 
     # Program launch
+    parser = BNC_MasterCard_parser()
+    parser.load(input_arg)
+    entries = parser.transform_to_entries()
     references = References.import_from_file(references_arg)
-    entries = Entries.import_from_file(input_arg)
     expenses = parse(entries, references)
 
 

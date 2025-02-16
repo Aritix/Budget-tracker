@@ -8,10 +8,10 @@ class Entry:
         price_index : index of the expense amount in the line
         day_index : index of the expense day in the line
         month_index : index of the expense month in the line
+        descr_index : index of the description
         join_indexes : index of components that need to be fusionned in the line
         """
         self.elements = elements
-        self.description = ""
 
         self.price = (
             float(self.elements[kwargs["price_index"]])
@@ -19,14 +19,20 @@ class Entry:
             else 0
         )
         self.day = (
-            int(self.elements[kwargs["day_index"]])
+            self.elements[kwargs["day_index"]]
             if "day_index" in kwargs.keys()
             else 0
         )
         self.month = (
-            int(self.elements[kwargs["month_index"]])
+            self.elements[kwargs["month_index"]]
             if "month_index" in kwargs.keys()
             else 0
+        )
+
+        self.description = (
+            self.elements[kwargs["descr_index"]]
+            if "descr_index" in kwargs.keys()
+            else ''
         )
 
         if "join_indexes" in kwargs:
