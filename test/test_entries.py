@@ -8,7 +8,7 @@ def test_entries_on_file():
     
     entries = Entries.import_from_file(TEST_ENTRY_PATH)
     assert len(entries.elements) == 10
-    assert entries.elements[0].day == 1
-    assert entries.elements[0].month == 1
+    assert entries.elements[0].day == "01"
+    assert entries.elements[0].month == "01"
     assert entries.elements[0].description == "FOOD"
     assert entries.elements[0].price == 10.5

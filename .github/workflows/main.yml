@@ -5,4 +5,4 @@ jobs:
   Pytest:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "pytest"
+      - run: "pytest"
