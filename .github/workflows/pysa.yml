@@ -10,7 +10,7 @@ jobs:
   pysa:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Run Pysa Action
         uses: facebook/pysa-action@0.0.1
