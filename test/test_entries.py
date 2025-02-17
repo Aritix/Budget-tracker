@@ -18,11 +18,11 @@ def test_import_entries_on_file():
 def test_add_entry_object():
     entries = Entries()
     assert len(entries.elements) == 0
-    entry_1 = Entry([])
+    entry_1 = Entry()
     entries.add_entry_object(entry_1)
     assert len(entries.elements) == 1
     assert entries.elements[0] == entry_1
-    entry_2 = Entry(['31', '12', 100.48, 'category'])
+    entry_2 = Entry(price=100.48, day='31', month='12', description='category')
     entries.add_entry_object(entry_2)
     assert len(entries.elements) == 2
     assert entries.elements[1] == entry_2

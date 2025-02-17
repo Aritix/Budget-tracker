@@ -1,48 +1,13 @@
 ## Entries classes and functions
 import csv
 
+
 class Entry:
-    def __init__(self, elements: list, *args, **kwargs):
-        """
-        elements : list
-        price_index : index of the expense amount in the line
-        day_index : index of the expense day in the line
-        month_index : index of the expense month in the line
-        descr_index : index of the description
-        join_indexes : index of components that need to be fusionned in the line
-        """
-        self.elements = elements
-
-        self.price = (
-            float(self.elements[kwargs["price_index"]])
-            if "price_index" in kwargs.keys()
-            else 0
-        )
-        self.day = (
-            self.elements[kwargs["day_index"]]
-            if "day_index" in kwargs.keys()
-            else 0
-        )
-        self.month = (
-            self.elements[kwargs["month_index"]]
-            if "month_index" in kwargs.keys()
-            else 0
-        )
-
-        self.description = (
-            self.elements[kwargs["descr_index"]]
-            if "descr_index" in kwargs.keys()
-            else ''
-        )
-
-        if "join_indexes" in kwargs:
-            i, j = kwargs["join_indexes"]
-            if j <= 0:
-                j = j + len(self.elements)
-            buffer = []
-            for k in range(i, j):
-                buffer.append(self.elements[k])
-            self.description = " ".join(buffer)
+    def __init__(self, price=0, day="00", month="00", description=""):
+        self.price = price
+        self.day = day
+        self.month = month
+        self.description = description
 
     def __str__(self):
         return f"<Entry object {self.description} {self.price} {self.month} {self.day}>"
@@ -80,7 +45,7 @@ class Entries:
         price_index = -1
         day_index = 1
         month_index = 0
-        join_indexes = (5, -1)
+        descr_index = 5
 
         with open(filename, "r") as f:
             entries = csv.reader(f, delimiter=delimiter)
@@ -89,12 +54,10 @@ class Entries:
         for line in content:
             entries.add_entry_object(
                 Entry(
-                    line,
-                    price_index=price_index,
-                    day_index=day_index,
-                    month_index=month_index,
-                    join_indexes=join_indexes,
+                    price=float(line[price_index]),
+                    day=line[day_index],
+                    month=line[month_index],
+                    description=line[descr_index],
                 )
             )
         return entries
-

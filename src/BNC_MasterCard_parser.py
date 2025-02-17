@@ -66,5 +66,5 @@ class BNC_MasterCard_parser:
         d1 = line[2:4]
         ref = line[4:14]
         descr = " ".join(line[18:].split(" ")[:-1])
-        amount = line.split(" ")[-1]
-        return Entry([d1, m1, descr, amount], price_index=3, day_index=0, month_index=1, descr_index=2)
+        amount = float(line.split(" ")[-1])
+        return Entry(price=amount, day=d1, month=m1, description=descr)
