@@ -54,7 +54,6 @@ class Expenses:
         return str_res
 
     def time_graph(self, subplot=None, SavedFileName=None, show=False):
-        print(self.time_sums)
         labels = self.time_sums.keys()
         items = sum([self.time_sums[label] for label in labels], [])
         times = [tpl[0] for tpl in items]

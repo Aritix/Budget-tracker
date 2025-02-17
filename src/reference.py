@@ -7,6 +7,12 @@ class Reference:
         self.classe_index = classe_index
         self.patterns = patterns
 
+    def add_patterns(self, pattern: str):
+        self.patterns.append(pattern)
+
+    def save(self) -> str:
+        return f"{self.classe_name}|{self.classe_index}|{','.join(self.patterns)}"
+
     def __str__(self):
         return f"<Reference object {self.classe_name} ({self.classe_index}) : {self.patterns}>"
 
@@ -37,6 +43,27 @@ class References:
             )
         )
 
+    def add_pattern(self, class_index : str, pattern : str):
+        found = False
+        for ref in self.elements:
+            if ref.classe_index == class_index:
+                ref.add_patterns(pattern)
+                found = True
+        if not found:
+            print("WARNING : No similar class index found !")
+
+    def get_classname_by_id(self, class_index : int) -> str:
+        for ref in self.elements:
+            if ref.classe_index == class_index:
+                return ref.classe_name
+
+    def save(self, output_file : str = None) -> str:
+        res = '\n'.join([ref.save() for ref in self.elements])
+        if output_file:
+            with open(output_file, 'w') as f:
+                f.write(res)
+        return res
+
     def __iter__(self):
         self.iteration = 0
         return self
@@ -54,6 +81,9 @@ class References:
             + "\n".join(["|\t" + str(ref) for ref in self])
             + "\n-"
         )
+
+    def __len__(self):
+        return len(self.elements)
 
     @classmethod
     def import_from_file(cls, filename):
