@@ -7,9 +7,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.9'  # Or your desired Python version
+          python-version: '3.12.3'  # Or your desired Python version
           cache: 'pip' # Caching pip dependencies for faster builds
       - name: Install Python dependencies
         uses: py-actions/py-dependency-install@v4
