@@ -4,5 +4,5 @@ src/__pycache__/
 .pytest_cache/
 venv/
 .env
-data/*
+data/hidden/
 references.txt
