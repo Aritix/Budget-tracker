@@ -1,8 +1,8 @@
 # from src.entry import Entry
-from src.entry import Entry, Entries
+from src.data_processing.entry import Entry, Entries
 
 TEST_DIR = "test/"
-TEST_DATA_DIR = f"{TEST_DIR}test_data/"
+TEST_DATA_DIR = f"data/test/"
 TEST_ENTRY_PATH = f"{TEST_DATA_DIR}entry_test.txt"
 
 

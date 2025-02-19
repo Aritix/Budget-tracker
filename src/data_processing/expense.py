@@ -5,10 +5,23 @@ import matplotlib.pyplot as plt
 import numpy as np
 from constantes import YEAR
 from constantes import CURRENCY
+from random import shuffle
 
 
 class Expenses:
     default_class = "Autres"
+    colors = [
+        "#001219",
+        "#005F73",
+        "#0A9396",
+        "#94D2BD",
+        "#E9D8A6",
+        "#EE9B00",
+        "#CA6702",
+        "#BB3E03",
+        "#AE2012",
+        "#9B2226",
+    ]
 
     def __init__(self, default_class="Autres"):
         self.default_class = default_class
@@ -65,7 +78,9 @@ class Expenses:
         for time in times:
             bottom_dict[time] = 0
         ax = plt.subplot(111) if subplot == None else subplot
-        for category_name, list_expenses in self.time_sums.items():
+        for (category_name, list_expenses), color in zip(
+            self.time_sums.items(), self.colors
+        ):
             times = [
                 datetime.datetime.strptime(
                     f"{YEAR}-{tpl[0][1]}-{tpl[0][0]}", "%Y-%m-%d"
@@ -83,7 +98,9 @@ class Expenses:
                     times_agg.append(time)
                     amounts_agg.append(amount)
             bottom = [bottom_dict[time] for time in times_agg]
-            ax.bar(times_agg, amounts_agg, label=category_name, bottom=bottom)
+            ax.bar(
+                times_agg, amounts_agg, label=category_name, bottom=bottom, color=color,
+            )
             for time, amount in zip(times_agg, amounts_agg):
                 bottom_dict[time] += amount
 
@@ -91,7 +108,6 @@ class Expenses:
         ax.set_title(
             f"Dépense du {self.time_min.strftime("%m/%d")} au {self.time_max.strftime("%m/%d")}"
         )
-        ax.legend()
         ax.set_xlabel("Date")
         ax.set_ylabel(f"Montant ({CURRENCY})")
         if SavedFileName:
@@ -114,7 +130,30 @@ class Expenses:
 
             return my_autopct
 
-        ax.pie(amounts, labels=labels, autopct=make_autopct(amounts))  #'%.1f')
+        # shuffle(colors)
+        wedges, texts, autotests = ax.pie(
+            amounts,
+            labels=labels,
+            autopct=make_autopct(amounts),
+            pctdistance=0.4,
+            explode=[1 / (len(amounts) * 10) for _ in amounts],
+            colors=self.colors,
+            shadow=False,
+            startangle=0,
+            radius=1,
+            wedgeprops=dict(width=0.5, mouseover=True),
+            # textprops=dict(color='white')
+        )
+        print(len(wedges), len(texts), len(autotests))
+        for i, (wedge, text, autotext) in enumerate(zip(wedges, texts, autotests)):
+            text.set_color(wedge.get_facecolor())
+            text.set_fontweight("bold")
+            text.set_fontsize("large")
+            text.set_multialignment("left")
+            autotext.set_color(wedge.get_facecolor())
+            autotext.set_fontweight("bold")
+
+        plt.title("Répartition des dépenses")
         if SavedFileName:
             plt.savefig(SavedFileName)
         else:
@@ -122,9 +161,10 @@ class Expenses:
                 plt.show()
 
     def all_graph(self, SavedFileName=None, show=False):
-        plt.figure(figsize=(15, 6))
+        fig = plt.figure(figsize=(15, 6))
         self.pie_graph(plt.subplot(121), show=False)
         self.time_graph(plt.subplot(122), show=False)
+        fig.autofmt_xdate()
         if SavedFileName:
             plt.savefig(SavedFileName)
         else:
