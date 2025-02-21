@@ -1,36 +1,18 @@
+from parser import Parser
+from entry import Entries, Entry
 from pypdf import PdfReader
-from entry import Entry, Entries
 
 
-class BNC_MasterCard_parser:
+class BNC_MasterCard_parser(Parser):
     """
     Class for the parser of type BNC_MasterCard.
     """
+    name = 'BNC_MasterCard'
 
     def __init__(self):
         self.file_path = ""
         self.reader = None
-
-    def load(self, file_path):
-        """
-        Load the statement file.
-        """
-        self.file_path = file_path
-        self.reader = PdfReader(file_path)
-
-    def transform_to_entries(self) -> Entries:
-        """
-        Parse the loaded file to an Entries object
-        """
-        assert self.file_path != ''
-        full_text = "\n".join(page.extract_text() for page in self.reader.pages)
-        lines = full_text.split("\n")
-        entries = Entries()
-        for line in lines:
-            if self.is_line_an_expense(line):
-                entries.add_entry_object(self.parse_expense_line(line))
-        return entries
-
+        
     def is_line_an_expense(self, line: str) -> bool:
         """
         Determines whether or not the given line is an expense or not.
@@ -41,8 +23,9 @@ class BNC_MasterCard_parser:
             price = line.split(" ")[-1]
             if price.count(".") == 1:
                 decimals = price.split(".")[1]
+                # print(line, price, decimals)
                 if (len(decimals) == 2 and decimals.isdigit()) or (
-                    len(decimals) == 3 and decimals[:2].isdigit() and decimals[3] == "-"
+                    len(decimals) == 3 and decimals[:2].isdigit() and decimals[2] == "-"
                 ):
                     # Dates format check
                     month, day = line[:2], line[2:4]
@@ -66,5 +49,15 @@ class BNC_MasterCard_parser:
         d1 = line[2:4]
         ref = line[4:14]
         descr = " ".join(line[18:].split(" ")[:-1])
-        amount = float(line.split(" ")[-1])
+        amount_str = line.split(" ")[-1]
+        amount = -float(amount_str[:-1]) if '-' in amount_str else float(amount_str)
         return Entry(price=amount, day=d1, month=m1, description=descr)
+
+    @classmethod
+    def recognize(cls, file_path: str) -> bool:
+        reader = PdfReader(file_path)
+        full_text = "\n".join(page.extract_text() for page in reader.pages)
+        keywords = ["MASTERCARD SOLUTIONS", "National Bank"]
+        if all([kw in full_text for kw in keywords]):
+            return True
+        return False

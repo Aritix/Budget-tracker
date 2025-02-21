@@ -20,6 +20,10 @@ class Entries:
 
     def add_entry_object(self, entry: Entry):
         self.elements.append(entry)
+    
+    def add_entries(self, entries: list[Entry]):
+        for entry in entries:
+            self.add_entry_object(entry)
 
     def __iter__(self):
         self.iteration = 0
