@@ -1,5 +1,5 @@
-from parser import Parser
-from entry import Entries, Entry
+from src.data_processing.parser import Parser
+from src.data_processing.entry import Entries, Entry
 from pypdf import PdfReader
 
 

@@ -1,12 +1,12 @@
 # copie colle un format csv, indique les colonnes de prix, description, date
 # Fournit une liste de mot-clé d'attribution d'entrées dans des catégories
 # Parse les entrées, donne les sommes et possibilités de construire les grqphiques temporels
-from entry import Entries, Entry
-from reference import References, Reference
-from expense import Expenses
-from BNC_MasterCard_parser import BNC_MasterCard_parser
-from expenses_parser import Expenses_parser
-from parser_identifier import parser_identifier
+from src.data_processing.entry import Entries, Entry
+from src.data_processing.reference import References, Reference
+from src.data_processing.expense import Expenses
+from src.data_processing.BNC_MasterCard_parser import BNC_MasterCard_parser
+from src.data_processing.expenses_parser import Expenses_parser
+from src.data_processing.parser_identifier import parser_identifier
 import os
 import argparse
 

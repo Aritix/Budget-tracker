@@ -1,6 +1,6 @@
-from entry import Entries, Entry
-from reference import References, Reference
-from expense import Expenses
+from src.data_processing.entry import Entries, Entry
+from src.data_processing.reference import References, Reference
+from src.data_processing.expense import Expenses
 
 
 class Expenses_parser:

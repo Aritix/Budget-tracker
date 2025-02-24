@@ -17,3 +17,7 @@ pip install -r requirements.txt
 ```
 
 # Usage
+
+```
+py BudViz.py [-h] [-r REFERENCES] [-o OUTPUT] [-d] [--update-refs] input
+```

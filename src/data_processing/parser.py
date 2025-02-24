@@ -2,7 +2,7 @@
 Definition de la classe abstraite de parser et de l'algorithme d'identification de type de fichier pdf.
 """
 from pypdf import PdfReader
-from entry import Entry, Entries
+from src.data_processing.entry import Entry, Entries
 
 
 
