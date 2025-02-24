@@ -19,7 +19,7 @@ class Expenses_parser:
             matches = []
             for reference in self.references:
                 for pattern in reference.patterns:
-                    if pattern in entry.description:
+                    if pattern.upper() in entry.description.upper():
                         matches.append(reference.classe_name)
 
             if len(matches) > 1:  # TODO Ne pas considéré si les matchs sont les mêmes

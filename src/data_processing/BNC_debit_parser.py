@@ -55,6 +55,7 @@ class BNC_debit_parser(Parser):
         Given a line that have been approved by 'is_line_an_expense', parse its content into an Entry object.
         """
         ...
+
         line = line.strip()
         day = line.split(" ")[0]
         month = line.split(" ")[1]
@@ -73,7 +74,7 @@ class BNC_debit_parser(Parser):
             "DEC": "12",
         }[month]
         price = line.split("           ")[1].replace(",", ".").replace(' ', '')
-        if price[-1] == '-':
+        if line[-1] == '-':
             price = '-'+price[:-1]
         price = float(price)
         # descr = ' '.join(line.replace(' ', '').split()[2:-2])
@@ -102,6 +103,7 @@ class BNC_debit_parser(Parser):
                         line += '-'
                 except ValueError: # Spent
                     pass
+                last_total = now_total
                 if "Suite en page" in line:
                     res.append(line.replace("\n", " ").split("Suite en page")[0])
                 elif "Total" in line:
