@@ -7,13 +7,14 @@ from src.data_processing.expense import Expenses
 from src.data_processing.BNC_MasterCard_parser import BNC_MasterCard_parser
 from src.data_processing.expenses_parser import Expenses_parser
 from src.data_processing.parser_identifier import parser_identifier
+from src.data_processing.main import main
 import os
 import argparse
 
 
 # Parsing function
 
-def main():
+def cli_entrypoint():
     parser = argparse.ArgumentParser(
         prog="Budget Parser",
         description="A program to parse bank statements and track your expenses.",
@@ -42,56 +43,12 @@ def main():
     update_refs_arg = args.update_refs
     input_arg = args.input
     input_file_paths = []
-    if not os.path.exists(input_arg):
-        print("Error : the input path does exists.")
-        return 1
-    if os.path.isdir(input_arg):
-        for entry in os.listdir(input_arg):
-            combined_path = os.path.join(input_arg, entry)
-            if os.path.splitext(entry)[1] == '.pdf' and os.path.isfile(combined_path):
-                input_file_paths.append(combined_path)
-        print(f"Found {len(input_file_paths)} files.")
-    elif os.path.isfile(input_arg):
-        input_file_paths.append(input_arg)
-    else:
-        print("Error : Unexpected behaviour. The input is neither a file or a directory but does exist ?")
-        return 1
+
     # Argument verification
 
-    # Program launch
-    entries = Entries()
-    for file_path in input_file_paths:
-        pdf_parser = parser_identifier(file_path)
-        if pdf_parser:
-            pdf_parser.load(file_path)
-            entries.add_entries(pdf_parser.transform_to_entries())
-        else:
-            # return
-            ...
-    # pdf_parser = BNC_MasterCard_parser()
-    # pdf_parser.load(input_arg)
-    # entries = pdf_parser.transform_to_entries()
-    references = References.import_from_file(references_arg)
-    expense_parser = Expenses_parser()
-    expense_parser.load(entries, references)
-    expenses = expense_parser.parse(update_references=update_refs_arg)
-
-    SavedFileName = output_arg
-
-    expenses.all_graph(SavedFileName=output_arg, show=display_arg)
+    main(input_file_paths, references_arg, output_arg, display_arg, update_refs_arg)
 
 
 
 if __name__ == "__main__":
-    # entries_file_name = "data/2025-02.txt"
-    # references_file_name = "data/references.txt"
-
-    # refs = References.import_from_file(references_file_name)
-    # entries = Entries.import_from_file(entries_file_name)
-
-    # expenses = parse(entries, refs)
-    # # expenses.time_graph(SavedFileName="fevrier.svg")
-    # # expenses.pie_graph()
-    # expenses.all_graph()
-
-    main()
+    cli_entrypoint()
