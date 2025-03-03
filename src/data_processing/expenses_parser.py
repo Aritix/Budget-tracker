@@ -1,26 +1,26 @@
 from src.data_processing.entry import Entries, Entry
-from src.data_processing.reference import References, Reference
+from src.data_processing.rule import Rules, Rule
 from src.data_processing.expense import Expenses
 
 
 class Expenses_parser:
     def __init__(self):
         self.entries = None
-        self.references = None
+        self.rules = None
         self.sums = None
 
-    def load(self, entries: Entries, references: References):
+    def load(self, entries: Entries, rules: Rules):
         self.entries = entries
-        self.references = references
+        self.rules = rules
         self.sums = Expenses()
 
-    def parse(self, update_references: bool = False):
+    def parse(self, update_rules: bool = False):
         for entry in self.entries:
             matches = []
-            for reference in self.references:
-                for pattern in reference.patterns:
+            for rule in self.rules:
+                for pattern in rule.patterns:
                     if pattern.upper() in entry.description.upper():
-                        matches.append(reference.classe_name)
+                        matches.append(rule.classe_name)
 
             if len(matches) > 1:  # TODO Ne pas considéré si les matchs sont les mêmes
                 print(
@@ -28,7 +28,7 @@ class Expenses_parser:
                 )
             if len(matches) == 0:
                 print(f"Aucune correspondance trouvée : {entry.description}")
-                if update_references:
+                if update_rules:
                     self.update_ref(entry)
                 else:
                     self.sums.add_expense(entry)  # Ajout dans 'Autres'
@@ -38,18 +38,18 @@ class Expenses_parser:
 
     def update_ref(self, entry):
         print(
-            f"Quelle catégorie donner ?\n{'\n'.join([f"{ref.classe_index} -> {ref.classe_name}" for ref in self.references])}\n *class-name* -> custom reference)"
+            f"Quelle catégorie donner ?\n{'\n'.join([f"{ref.classe_index} -> {ref.classe_name}" for ref in self.rules])}\n *class-name* -> custom rule)"
         )
         category = input()
         print(f"Quel mot clé associer ?")
         keyword = input()
         if category.isdigit():
-            classname = self.references.get_classname_by_id(int(category))
-            self.references.add_pattern(category, keyword)
+            classname = self.rules.get_classname_by_id(int(category))
+            self.rules.add_pattern(category, keyword)
             self.sums.add_expense(entry, category_name=classname)
         elif category:
-            self.references.add_ref_fields(
-                category, int(len(self.references)), [keyword]
+            self.rules.add_ref_fields(
+                category, int(len(self.rules)), [keyword]
             )
             self.sums.add_expense(entry, category_name=category)
         else:

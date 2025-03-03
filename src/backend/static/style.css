@@ -1,0 +1,398 @@
+/* style.css */
+body {
+    font-family: sans-serif;
+    background-color: #121833ff;
+    color: #1A1F2C;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.pdf-viewer-container {
+    width: 95%;
+    max-width: 1400px;
+    background-color: #121833; /* Background is consistent */
+    border-radius: 12px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* To contain rounded corners and shadows */
+    display: flex;
+    flex-direction: column; /* Stack header and main content */
+}
+
+/* Header Styling */
+.app-header {
+    padding: 20px 30px;
+    text-align: left;
+    border-bottom: 1px solid #1a1a1a;
+}
+
+.app-header h1 {
+    margin: 0;
+    font-weight: 600;
+}
+
+/* Main Content Grid */
+.main-content {
+    display: grid;
+    grid-template-columns: 250px 1fr; /* Options panel width and remaining space for preview */
+    min-height: 600px; /* Minimum height for content */
+}
+
+/* Options Panel Styling */
+.options-panel {
+    padding: 20px;
+    border-right: 1px solid #121833;
+}
+
+.options-panel h3 {
+    margin-top: 0;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+.options-content .option-group {
+    margin-bottom: 20px;
+}
+
+.options-content label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.options-content select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    background-color: #121833;
+    color: #ffffff;
+    appearance: none; /* Remove default appearance for better styling */
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/><path d="M0 0h24v24H0z" fill="none"/></svg>'); /* Custom dropdown arrow */
+    background-repeat: no-repeat;
+    background-position-x: right;
+    background-position-y: center;
+    padding-right: 30px; /* Make space for arrow */
+}
+
+.options-content select:focus {
+    outline: none;
+    border-color: #ccc;
+    box-shadow: 0 0 0 2px rgba(204, 204, 204, 0.2); /* Example subtle focus effect */
+}
+
+/* Small Upload Zone for Reference File */
+.small-upload-zone {
+    border: 1px dashed #ccc; /* Thinner border */
+    padding: 20px; /* Reduced padding */
+    margin-bottom: 5px; /* Spacing below upload zone */
+}
+
+.small-upload-zone .upload-icon svg {
+    width: 30px; /* Smaller icon */
+    height: 30px;
+}
+
+.small-upload-zone p {
+    font-size: 0.9em; /* Smaller font */
+}
+
+.file-name {
+    font-size: 0.85em;
+    color: #777;
+    margin-top: 5px;
+    margin-bottom: 0;
+    text-align: left; /* Align file name to left */
+    word-wrap: break-word; /* Handle long file names */
+}
+
+
+/* Graph View Section Styles */
+.graph-view-section {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* Graph Display Area */
+.graph-display-area {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    position: relative; /* For loading state */
+    min-height: 400px; /* Minimum height for graph area */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center placeholder text vertically */
+}
+
+.graph-container {
+    padding: 20px; /* Padding inside graph container */
+    width: 100%; /* Take full width of display area */
+    height: 100%; /* Take full height of display area */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center placeholder text vertically */
+}
+
+.graph-container .placeholder-text {
+    color: #999;
+    font-style: italic;
+}
+
+
+/* ... (responsive styles and other existing styles remain the same) ... */
+
+/* Glass Morphism Effect */
+.glass-morphism {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px); /* for Safari */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+
+/* PDF Preview Section */
+.pdf-preview-section {
+    padding: 20px;
+    display: flex;
+    flex-direction: column; /* Stack upload zone and preview */
+}
+
+/* Upload Zone Styling */
+.upload-zone {
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    padding: 40px;
+    text-align: center;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: border-color 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.upload-zone:hover, .upload-zone.dragover {
+    border-color: #aaa;
+    background-color: rgba(0, 0, 0, 0.02); /* Subtle background on hover/dragover */
+}
+
+.upload-icon svg {
+    width: 40px;
+    height: 40px;
+    color: #777;
+    margin-bottom: 10px;
+}
+
+.upload-zone p {
+    margin: 0;
+    color: #555;
+}
+
+.upload-zone button {
+    background: none;
+    border: none;
+    color: #1A1F2C;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+    font-size: inherit;
+}
+
+/* PDF Preview Container */
+.pdf-preview {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    overflow: hidden; /* Clip content within rounded corners */
+    position: relative; /* For loading state overlay */
+}
+
+/* Loading State Overlay */
+.loading-state {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    z-index: 10; /* Ensure it's on top */
+    display: none; /* Hidden by default, shown by JS */
+}
+
+.loading-state.active {
+    display: flex; /* Show loading state */
+}
+
+.spinner {
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #1A1F2C;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* PDF Pages Container */
+.pdf-pages {
+    padding: 20px;
+    min-height: 400px; /* Minimum height for preview area */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; /* Center placeholder text vertically */
+}
+
+.pdf-pages .placeholder-text {
+    color: #999;
+    font-style: italic;
+}
+
+
+/* Pagination */
+.pagination {
+    padding: 15px 20px;
+    border-top: 1px solid #1a1a1a;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pagination button {
+    background-color: #121833;
+    color: #1A1F2C;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    padding: 8px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #1a1a1a;
+    border-color: #ccc;
+}
+
+.pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    color: #555;
+    font-size: 0.9em;
+}
+
+
+/* Responsive Design (example for smaller screens) */
+@media (max-width: 768px) {
+    .main-content {
+        grid-template-columns: 1fr; /* Stack options and preview on smaller screens */
+    }
+    .options-panel {
+        border-right: none;
+        border-bottom: 1px solid #1a1a1a;
+    }
+}
+
+
+/* Accent Color */
+:root {
+    --accent-color: #5391FC; /* Example: Muted Blue - You can adjust this */
+    --accent-color-light: #e0eafa; /* Light version for hovers */
+}
+
+/* Option Button Styling (Export Button) */
+.options-content .option-group {
+    margin-bottom: 20px; /* Add margin to option groups */
+    display: flex; /* Use flex to align label and select/button */
+    flex-direction: column; /* Stack label and select/button */
+}
+
+.option-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-size: 1em;
+    font-weight: 500; /* Make button text a bit bolder */
+    text-align: center; /* Ensure text is centered */
+    display: inline-block; /* Needed for proper width if inside flexbox/grid */
+    text-decoration: none; /* Remove underlines if you use <a> tag later */
+    -webkit-appearance: none; /* Reset appearance for consistent styling */
+    -moz-appearance: none;
+    appearance: none;
+    width: 100%; /* Full width within its container */
+    box-sizing: border-box; /* Include padding and border in element's total width */
+}
+
+.option-button:hover {
+    background-color: var(--accent-color-light);
+    color: #1A1F2C; /* Dark text on hover for better contrast */
+}
+
+.option-button:focus {
+    outline: 2px solid var(--accent-color); /* Focus outline with accent color */
+    outline-offset: 2px;
+}
+
+
+/* Styling for Select Dropdown with Accent */
+.options-content select:focus {
+    outline: none;
+    border-color: var(--accent-color); /* Accent color on focus */
+    box-shadow: 0 0 0 2px var(--accent-color-light); /* Subtle shadow with light accent color */
+}
+
+
+/* Hover effect for buttons (slightly modified to use accent color lightly) */
+.pagination button:hover:not(:disabled),
+.upload-zone button:hover,
+.upload-zone button:focus {
+    background-color: var(--accent-color-light); /* Light accent color on hover */
+    border-color: var(--accent-color); /* Accent color for border on hover/focus */
+    color: #1A1F2C; /* Ensure text color is still readable */
+}
+
+.upload-zone:hover, .upload-zone.dragover,
+.small-upload-zone:hover, .small-upload-zone.dragover {
+    border-color: var(--accent-color); /* Accent color for upload zone border on hover/dragover */
+    background-color: var(--accent-color-light); /* Light accent background on hover/dragover */
+}
+
+
+/* Minor color adjustments for visual interest */
+.app-header {
+    /* Slightly different header background if you want */
+    background-color: #F8F8F8; /* A bit lighter than main background */
+}
+
+.app-header h1 {
+    color: #2c3e50; /* A slightly different dark color for header text */
+}
