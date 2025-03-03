@@ -2,7 +2,7 @@
 # Fournit une liste de mot-clé d'attribution d'entrées dans des catégories
 # Parse les entrées, donne les sommes et possibilités de construire les grqphiques temporels
 from src.data_processing.entry import Entries, Entry
-from src.data_processing.reference import References, Reference
+from src.data_processing.rule import Rules, Rule
 from src.data_processing.expense import Expenses
 from src.data_processing.BNC_MasterCard_parser import BNC_MasterCard_parser
 from src.data_processing.expenses_parser import Expenses_parser
@@ -13,12 +13,12 @@ import argparse
 
 # Parsing function
 
-def main(input : list, references_path : str, output_path, display: bool, update_refs: bool):
+def main(input : list, rules_path : str, output_path, display: bool, update_refs: bool):
     """
     Begin the treatment of documents.
 
     -input : list of paths to the files or directories to parse
-    -references_path : path to the reference file
+    -rules_path : path to the reference file
     -output_path : path to the output file to write in
     -display : boolean to display the graphs
     -update_refs : boolean to update the references
@@ -46,9 +46,9 @@ def main(input : list, references_path : str, output_path, display: bool, update
         if pdf_parser:
             pdf_parser.load(file_path)
             entries.add_entries(pdf_parser.transform_to_entries())
-    references = References.import_from_file(references_path)
+    rules = Rules.load(rules_path)
     expense_parser = Expenses_parser()
-    expense_parser.load(entries, references)
-    expenses = expense_parser.parse(update_references=update_refs)
+    expense_parser.load(entries, rules)
+    expenses = expense_parser.parse(update_rules=update_refs)
     expenses.all_graph(SavedFileName=output_path, show=display)
     return 1

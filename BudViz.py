@@ -2,7 +2,7 @@
 # Fournit une liste de mot-clé d'attribution d'entrées dans des catégories
 # Parse les entrées, donne les sommes et possibilités de construire les grqphiques temporels
 from src.data_processing.entry import Entries, Entry
-from src.data_processing.reference import References, Reference
+from src.data_processing.rule import Rules, Rule
 from src.data_processing.expense import Expenses
 from src.data_processing.BNC_MasterCard_parser import BNC_MasterCard_parser
 from src.data_processing.expenses_parser import Expenses_parser
