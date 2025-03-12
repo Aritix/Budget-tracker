@@ -6,38 +6,124 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ghcr.io/aritix/awscli-with-tools:1.0.0
     steps:
-    - uses: actions/checkout@v2
-    
     - name: Deploy to EC2
       env:
         PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
         HOST: ${{ secrets.EC2_HOST }}
         USER: ${{ secrets.EC2_USER }}
+        INSTANCE_ID: ${{ secrets.INSTANCE_ID }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+        BRANCH: ${{ vars.BRANCH }}
+        REPO_DIR: ${{ vars.REPO_DIR }}
+        FLASK_APP_NAME: ${{ vars.FLASK_APP_NAME }}
+        FLASK_APP_PORT: ${{ vars.FLASK_APP_PORT }}
+        TEST_ENDPOINT: ${{ vars.TEST_ENDPOINT }}
+        REMOTE_REPO_PATH: ${{ vars.REMOTE_REPO_PATH }}
       run: |
-        echo "$PRIVATE_KEY" > github-ec2.pem && chmod 600 github-ec2.pem
-        ssh -o StrictHostKeyChecking=no -i github-ec2.pem ${USER}@${HOST} '
-        echo "Current directory: $(pwd)"
-        echo "Listing home directory:"
-        ls -la ~
+        #!/bin/bash
+        
+        # --- Configuration ---
 
-        REPO_URL="https://github.com/Aritix/Budget-tracker.git"
-        BRANCH="deploy"
-        REPO_DIR="$HOME/github-aws-ec2"
+        # set -e
+        mkdir -p ~/.aws 
+        echo "[default]
+        aws_access_key_id=$AWS_ACCESS_KEY_ID
+        aws_secret_access_key=$AWS_SECRET_ACCESS_KEY
+        " > ~/.aws/credentials
 
-        if [ -d "$REPO_DIR/.git" ]; then
-          cd "$REPO_DIR"
-          git pull origin "$BRANCH"
+        # --- End Configuration ---
+
+        echo "--- Starting Deployment Script ---"
+
+        # --- 1. Determine EC2 Instance IP/DNS ---
+        echo "--- 1. Determining EC2 Instance IP/DNS and Validating Instance State ---"
+
+        if [[ -z "$INSTANCE_ID" || -z "$AWS_REGION" ]]; then
+          echo "Instance ID or AWS region not provided. Skipping IP/DNS determination and instance state validation."
+          exit 1
         else
-          git clone "$REPO_URL" "$REPO_DIR"
-          cd "$REPO_DIR"
-          git checkout -b "$BRANCH" origin/"$BRANCH"
-        fi  
+          INSTANCE_STATE=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --region "$AWS_REGION" --query 'Reservations[0].Instances[0].State.Name' --output text)
 
-        python3 -m venv venv
-        source venv/bin/activate
-        echo "Installing dependencies..."
-        pip install -r requirements.txt
-        echo "Starting/restarting application..."
-        flask --app src/backend/app.py run
+          if [[ "$INSTANCE_STATE" != "running" ]]; then
+            echo "EC2 instance is not in 'running' state. Current state: $INSTANCE_STATE. Exiting with error code 1."
+            exit 1
+          fi
+
+          INSTANCE_IP=$(aws ec2 describe-instances --instance-ids "$INSTANCE_ID" --region "$AWS_REGION" --query 'Reservations[0].Instances[0].PublicIpAddress' --output text)
+
+          if [[ -z "$INSTANCE_IP" ]]; then
+            echo "Failed to retrieve EC2 instance IP. Exiting with error code 1."
+            exit 1
+          fi
+          echo "EC2 Instance IP: $INSTANCE_IP"
+          echo "EC2 Instance State: $INSTANCE_STATE"
+        fi
+
+        # --- 2. Check Server Availability ---
+        echo "--- 2. Checking Server Availability ---"
+
+        if ping -c 1 "$INSTANCE_IP" > /dev/null; then
+          echo "Server is reachable."
+        else
+          echo "Server is unreachable. Exiting."
+          exit 1
+        fi
+
+        # --- 3. Connect with SSH to the Server ---
+        echo "--- 3. Connecting with SSH to the Server ---"
+        echo "$PRIVATE_KEY" > github-ec2.pem && chmod 600 github-ec2.pem
+
+        ssh -o StrictHostKeyChecking=no "$USER@$INSTANCE_IP" -i github-ec2.pem "echo 'SSH connection successful'"
+        if [[ $? -ne 0 ]]; then
+          echo "SSH connection failed. Exiting."
+          exit 1
+        fi
+
+        # --- 4. Check Web Server Status (Flask Application) ---
+        echo "--- 4. Checking Web Server Status ---"
+
+        ssh -o StrictHostKeyChecking=no "$USER@$INSTANCE_IP" -i github-ec2.pem "sudo systemctl status $FLASK_APP_NAME"
+        if [[ $? -ne 0 ]]; then
+          echo "Flask application service is not running or could not be checked. Exiting."
+          exit 1
+        fi
+
+        # --- 5. Download New Repository ---
+        echo "--- 5. Downloading New Repository ---"
+
+        ssh -o StrictHostKeyChecking=no "$USER@$INSTANCE_IP" -i github-ec2.pem "
+          cd $REPO_DIR
+          git pull origin $BRANCH
+          git checkout $BRANCH
+        "
+        if [[ $? -ne 0 ]]; then
+          echo "Failed to download/pull repository. Exiting."
+          exit 1
+        fi
+
+        # --- 6. Restart Service with Updates ---
+        echo "--- 6. Restarting Service ---"
+
+        ssh -o StrictHostKeyChecking=no "$USER@$INSTANCE_IP" -i github-ec2.pem "sudo systemctl restart \"$FLASK_APP_NAME\""
+        if [[ $? -ne 0 ]]; then
+          echo "Failed to restart service. Exiting."
+          exit 1
+        fi
+
+        # --- 7. Test Service Functionality ---
+        echo "--- 7. Testing Service Functionality ---"
+
+        if ssh -o StrictHostKeyChecking=no "$USER@$INSTANCE_IP" -i github-ec2.pem " curl -s -f $TEST_ENDPOINT" > /dev/null; then
+          echo "Service test successful."
+        else
+          echo "Service test failed..."
+        fi
+
+        echo "--- Deployment Successful ---"
+
+        exit 0
