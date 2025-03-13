@@ -102,9 +102,14 @@ jobs:
         IMAGE_NAME: ${{ vars.IMAGE_NAME }}
         IMAGE_VERSION: ${{ vars.IMAGE_VERSION }}
       run: |
-         IMAGE_FULL_NAME="ghcr.io/aritix/$IMAGE_NAME:$IMAGE_VERSION"
-         echo "Pulling image: $IMAGE_FULL_NAME"
-         docker pull $IMAGE_FULL_NAME
+        echo $IMAGE_NAME
+        echo $IMAGE_VERSION
+        IMAGE_NAME=awscli-with-tools
+        IMAGE_VERSION=1.0.0
+
+        IMAGE_FULL_NAME="ghcr.io/aritix/$IMAGE_NAME:$IMAGE_VERSION"
+        echo "Pulling image: $IMAGE_FULL_NAME"
+        docker pull $IMAGE_FULL_NAME
     - name: Deploy to EC2
       run: |
         echo '--- Deploying to EC2 ---'
