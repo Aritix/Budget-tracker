@@ -99,7 +99,7 @@ jobs:
           exit 0" > deploy.sh
     - name: Pull docker image
       run: |
-         IMAGE_FULL_NAME="ghcr.io/aritix/${IMAGE_NAME}:${IMAGE_VERSION}"
+         IMAGE_FULL_NAME="ghcr.io/aritix/${{ vars.IMAGE_NAME }}:${{ vars.IMAGE_VERSION }}"
          echo "Pulling image: $IMAGE_FULL_NAME"
          docker pull $IMAGE_FULL_NAME
     - name: Deploy to EC2
