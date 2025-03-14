@@ -119,7 +119,7 @@ jobs:
         env > .env
         chmod 600 .env
         chmod +x deploy.sh
-        docker run -it -v ./deploy.sh:/deploy.sh \
+        docker run -v ./deploy.sh:/deploy.sh \
           -e INSTANCE_ID=$INSTANCE_ID \
           -e AWS_REGION=$AWS_REGION \
           -e USER=$USER \
