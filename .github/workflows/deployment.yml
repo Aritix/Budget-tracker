@@ -137,14 +137,14 @@ jobs:
         echo '--- Deploying to EC2 ---'
         echo "[default]
         aws_access_key_id = $AWS_ACCESS_KEY_ID
-        aws_secret_access_key = $AWS_SECRET_ACCESS" > ~/.aws/credentials
+        aws_secret_access_key = $AWS_SECRET_ACCESS" > .awscredentials
         echo " Running image $IMAGE_FULL_NAME "
         chmod +x deploy.sh
         echo "$PRIVATE_KEY" > private_key.pem
         docker run \
           -v ./deploy.sh:/deploy.sh \
           -v ./private_key.pem:/github-ec2.pem \
-          -v ~/.aws/credentials:/root/.aws/credentials \
+          -v ./.awscredentials:/root/.aws/credentials \
           -e INSTANCE_ID=$INSTANCE_ID \
           -e AWS_REGION=$AWS_REGION \
           -e USER=$USER \
