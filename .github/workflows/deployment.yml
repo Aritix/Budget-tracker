@@ -135,14 +135,16 @@ jobs:
       run: |
         IMAGE_FULL_NAME="ghcr.io/aritix/$IMAGE_NAME:$IMAGE_VERSION"
         echo '--- Deploying to EC2 ---'
+        echo "[default]
+        aws_access_key_id = $AWS_ACCESS_KEY_ID
+        aws_secret_access_key = $AWS_SECRET_ACCESS" > ~/.aws/credentials
         echo " Running image $IMAGE_FULL_NAME "
-        env > .env
-        chmod 600 .env
         chmod +x deploy.sh
         echo "$PRIVATE_KEY" > private_key.pem
         docker run \
           -v ./deploy.sh:/deploy.sh \
           -v ./private_key.pem:/github-ec2.pem \
+          -v ~/.aws/credentials:/root/.aws/credentials \
           -e INSTANCE_ID=$INSTANCE_ID \
           -e AWS_REGION=$AWS_REGION \
           -e USER=$USER \
