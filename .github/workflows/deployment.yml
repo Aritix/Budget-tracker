@@ -39,26 +39,26 @@ jobs:
         echo "
           echo '--- Starting Deployment Script ---'
           echo '--- 1. Determining EC2 Instance IP/DNS and Validating Instance State ---'
-          if [[ -z '\$INSTANCE_ID' || -z '\$AWS_REGION' ]]; then
+          if [[ -z \"\$INSTANCE_ID\" || -z \"\$AWS_REGION\" ]]; then
             echo 'Instance ID or AWS region not provided. Skipping IP/DNS determination and instance state validation.'
             exit 1
           else
-            INSTANCE_STATE=\$(aws ec2 describe-instances --instance-ids '\$INSTANCE_ID' --region '\$AWS_REGION' --query Reservations[0].Instances[0].State.Name --output text)
-            if [[ '\$INSTANCE_STATE' != 'running' ]]; then
-              echo 'EC2 instance is not in *running* state. Current state: \$INSTANCE_STATE. Exiting with error code 1.'
+            INSTANCE_STATE=\$(aws ec2 describe-instances --instance-ids \"\$INSTANCE_ID\" --region \"\$AWS_REGION\" --query Reservations[0].Instances[0].State.Name --output text)
+            if [[ \"\$INSTANCE_STATE\" != 'running' ]]; then
+              echo \"EC2 instance is not in *running* state. Current state: \$INSTANCE_STATE. Exiting with error code 1.\"
               exit 1
             fi
-            INSTANCE_IP=\$(aws ec2 describe-instances --instance-ids '\$INSTANCE_ID' --region '\$AWS_REGION' --query Reservations[0].Instances[0].PublicIpAddress --output text)
-            if [[ -z '\$INSTANCE_IP' ]]; then
+            INSTANCE_IP=\$(aws ec2 describe-instances --instance-ids \"\$INSTANCE_ID\" --region \"\$AWS_REGION\" --query Reservations[0].Instances[0].PublicIpAddress --output text)
+            if [[ -z \"\$INSTANCE_IP\" ]]; then
               echo 'Failed to retrieve EC2 instance IP. Exiting with error code 1.'
               exit 1
             fi
-            echo 'EC2 Instance IP: \$INSTANCE_IP'
-            echo 'EC2 Instance State: \$INSTANCE_STATE'
+            echo \"EC2 Instance IP: \$INSTANCE_IP\"
+            echo \"EC2 Instance State: \$INSTANCE_STATE\"
           fi
           # --- 2. Check Server Availability ---
           echo '--- 2. Checking Server Availability ---'
-          if ping -c 1 '\$INSTANCE_IP' > /dev/null; then
+          if ping -c 1 \"\$INSTANCE_IP\" > /dev/null; then
             echo 'Server is reachable.'
           else
             echo 'Server is unreachable. Exiting.'
@@ -67,38 +67,39 @@ jobs:
           # --- 3. Connect with SSH to the Server ---
           echo '--- 3. Connecting with SSH to the Server ---'
           chmod 600 github-ec2.pem
-          ssh -o StrictHostKeyChecking=no '\$USER@\$INSTANCE_IP' -i github-ec2.pem 'echo SSH connection successful'
+          ssh -o StrictHostKeyChecking=no \"\$USER@\$INSTANCE_IP\" -i github-ec2.pem 'echo SSH connection successful'
           if [[ \$? -ne 0 ]]; then
             echo 'SSH connection failed. Exiting.'
             exit 1
           fi
           # --- 4. Check Web Server Status (Flask Application) ---
           echo '--- 4. Checking Web Server Status ---'
-          ssh -o StrictHostKeyChecking=no '\$USER@\$INSTANCE_IP' -i github-ec2.pem 'sudo systemctl status \$FLASK_APP_NAME'
+          ssh -o StrictHostKeyChecking=no \"\$USER@\$INSTANCE_IP\" -i github-ec2.pem \"sudo systemctl status \$FLASK_APP_NAME\"
           if [[ \$? -ne 0 ]]; then
             echo 'Flask application service is not running or could not be checked. Exiting.'
             exit 1
           fi
           # --- 5. Download New Repository ---
           echo '--- 5. Downloading New Repository ---'
-          ssh -o StrictHostKeyChecking=no '\$USER@\$INSTANCE_IP' -i github-ec2.pem '
+          ssh -o StrictHostKeyChecking=no \"\$USER@\$INSTANCE_IP\" -i github-ec2.pem \"
             cd \$REPO_DIR
             git pull origin \$BRANCH
             git checkout \$BRANCH
+          \"
           if [[ \$? -ne 0 ]]; then
             echo 'Failed to download/pull repository. Exiting.'
             exit 1
           fi
           # --- 6. Restart Service with Updates ---
           echo '--- 6. Restarting Service ---'
-          ssh -o StrictHostKeyChecking=no '\$USER@\$INSTANCE_IP' -i github-ec2.pem 'sudo systemctl restart \'\$FLASK_APP_NAME\'
+          ssh -o StrictHostKeyChecking=no \"\$USER@\$INSTANCE_IP\" -i github-ec2.pem \"sudo systemctl restart \$FLASK_APP_NAME\"
           if [[ \$? -ne 0 ]]; then
             echo 'Failed to restart service. Exiting.'
             exit 1
           fi
           # --- 7. Test Service Functionality ---
           echo '--- 7. Testing Service Functionality ---'
-          if ssh -o StrictHostKeyChecking=no '\$USER@\$INSTANCE_IP' -i github-ec2.pem ' curl -s -f \$TEST_ENDPOINT' > /dev/null; then
+          if ssh -o StrictHostKeyChecking=no \"\$USER@\$INSTANCE_IP\" -i github-ec2.pem \" curl -s -f \$TEST_ENDPOINT\" > /dev/null; then
             echo 'Service test successful.'
           else
             echo 'Service test failed...'
