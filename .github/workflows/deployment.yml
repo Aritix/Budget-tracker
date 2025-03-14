@@ -115,7 +115,21 @@ jobs:
         docker pull $IMAGE_FULL_NAME
     - name: Deploy to EC2
       env:
+        PRIVATE_KEY: ${{ secrets.EC2_PRIVATE_KEY }}
+        HOST: ${{ secrets.EC2_HOST }}
+        USER: ${{ secrets.EC2_USER }}
+        INSTANCE_ID: ${{ secrets.INSTANCE_ID }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
         IMAGE_NAME: ${{ vars.IMAGE_NAME }}
+        BRANCH: ${{ vars.BRANCH }}
+        REPO_DIR: ${{ vars.REPO_DIR }}
+        FLASK_APP_NAME: ${{ vars.FLASK_APP_NAME }}
+        FLASK_APP_PORT: ${{ vars.FLASK_APP_PORT }}
+        TEST_ENDPOINT: ${{ vars.TEST_ENDPOINT }}
+        REMOTE_REPO_PATH: ${{ vars.REMOTE_REPO_PATH }}
         IMAGE_VERSION: ${{ vars.IMAGE_VERSION }}
       run: |
         IMAGE_FULL_NAME="ghcr.io/aritix/$IMAGE_NAME:$IMAGE_VERSION"
@@ -136,4 +150,5 @@ jobs:
           -e BRANCH=$BRANCH \
           -e TEST_ENDPOINT=$TEST_ENDPOINT \
           -e REMOTE_REPO_PATH=$REMOTE_REPO_PATH \
+          -e FLASK_APP_PORT=$FLASK_APP_PORT \
           $IMAGE_FULL_NAME /deploy.sh
