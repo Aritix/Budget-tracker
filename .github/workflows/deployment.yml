@@ -66,7 +66,7 @@ jobs:
           fi
           # --- 3. Connect with SSH to the Server ---
           echo '--- 3. Connecting with SSH to the Server ---'
-          echo '\$PRIVATE_KEY' > github-ec2.pem && chmod 600 github-ec2.pem
+          chmod 600 github-ec2.pem
           ssh -o StrictHostKeyChecking=no '\$USER@\$INSTANCE_IP' -i github-ec2.pem 'echo SSH connection successful'
           if [[ \$? -ne 0 ]]; then
             echo 'SSH connection failed. Exiting.'
@@ -124,12 +124,14 @@ jobs:
         env > .env
         chmod 600 .env
         chmod +x deploy.sh
-        docker run -v ./deploy.sh:/deploy.sh \
+        echo "$PRIVATE_KEY" > private_key.pem
+        docker run \
+          -v ./deploy.sh:/deploy.sh \
+          -v ./private_key.pem:/github-ec2.pem \
           -e INSTANCE_ID=$INSTANCE_ID \
           -e AWS_REGION=$AWS_REGION \
           -e USER=$USER \
           -e FLASK_APP_NAME=$FLASK_APP_NAME \
-          -e PRIVATE_KEY=$PRIVATE_KEY \
           -e REPO_DIR=$REPO_DIR \
           -e BRANCH=$BRANCH \
           -e TEST_ENDPOINT=$TEST_ENDPOINT \
