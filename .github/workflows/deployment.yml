@@ -37,9 +37,6 @@ jobs:
     - name: Write deployment script
       run: |
         echo "
-          ls -al /root
-          ls -al /root/.aws
-          du /root/.aws/credentials
           echo '--- Starting Deployment Script ---'
           echo '--- 1. Determining EC2 Instance IP/DNS and Validating Instance State ---'
           if [[ -z \"\$INSTANCE_ID\" || -z \"\$AWS_REGION\" ]]; then
@@ -140,7 +137,7 @@ jobs:
         echo '--- Deploying to EC2 ---'
         echo "[default]
         aws_access_key_id = $AWS_ACCESS_KEY_ID
-        aws_secret_access_key = $AWS_SECRET_ACCESS" > .awscredentials
+        aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" > .awscredentials
         echo " Running image $IMAGE_FULL_NAME "
         chmod +x deploy.sh
         echo "$PRIVATE_KEY" > private_key.pem
