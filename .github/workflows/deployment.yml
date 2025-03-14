@@ -56,14 +56,14 @@ jobs:
             echo \"EC2 Instance IP: \$INSTANCE_IP\"
             echo \"EC2 Instance State: \$INSTANCE_STATE\"
           fi
-          # --- 2. Check Server Availability ---
-          echo '--- 2. Checking Server Availability ---'
-          if ping -c 1 \"\$INSTANCE_IP\" > /dev/null; then
-            echo 'Server is reachable.'
-          else
-            echo 'Server is unreachable. Exiting.'
-            exit 1
-          fi
+          # --- 2. Check Server Availability --- # SKIPPED AS AZURE DOES NOT ALLOW PING
+          # echo '--- 2. Checking Server Availability ---'
+          # if ping -c 1 \"\$INSTANCE_IP\" > /dev/null; then
+          #   echo 'Server is reachable.'
+          # else
+          #   echo 'Server is unreachable. Exiting.'
+          #   exit 1
+          # fi
           # --- 3. Connect with SSH to the Server ---
           echo '--- 3. Connecting with SSH to the Server ---'
           chmod 600 github-ec2.pem
