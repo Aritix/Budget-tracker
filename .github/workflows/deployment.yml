@@ -116,6 +116,7 @@ jobs:
     - name: Deploy to EC2
       run: |
         echo '--- Deploying to EC2 ---'
+        echo ' Running image $IMAGE_FULL_NAME '
         env > .env
         chmod 600 .env
         chmod +x deploy.sh
@@ -129,4 +130,4 @@ jobs:
           -e BRANCH=$BRANCH \
           -e TEST_ENDPOINT=$TEST_ENDPOINT \
           -e REMOTE_REPO_PATH=$REMOTE_REPO_PATH \
-           $IMAGE_FULL_NAME /deploy.sh
+          $IMAGE_FULL_NAME /deploy.sh
