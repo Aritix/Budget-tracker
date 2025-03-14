@@ -37,6 +37,9 @@ jobs:
     - name: Write deployment script
       run: |
         echo "
+          ls -al /root
+          ls -al /root/.aws
+          du /root/.aws/credentials
           echo '--- Starting Deployment Script ---'
           echo '--- 1. Determining EC2 Instance IP/DNS and Validating Instance State ---'
           if [[ -z \"\$INSTANCE_ID\" || -z \"\$AWS_REGION\" ]]; then
