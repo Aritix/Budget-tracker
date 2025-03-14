@@ -119,4 +119,14 @@ jobs:
         env > .env
         chmod 600 .env
         chmod +x deploy.sh
-        docker run -it -v ./deploy.sh:/deploy.sh --env-file .env $IMAGE_FULL_NAME /deploy.sh
+        docker run -it -v ./deploy.sh:/deploy.sh \
+          -e INSTANCE_ID=$INSTANCE_ID \
+          -e AWS_REGION=$AWS_REGION \
+          -e USER=$USER \
+          -e FLASK_APP_NAME=$FLASK_APP_NAME \
+          -e PRIVATE_KEY=$PRIVATE_KEY \
+          -e REPO_DIR=$REPO_DIR \
+          -e BRANCH=$BRANCH \
+          -e TEST_ENDPOINT=$TEST_ENDPOINT \
+          -e REMOTE_REPO_PATH=$REMOTE_REPO_PATH \
+           $IMAGE_FULL_NAME /deploy.sh
