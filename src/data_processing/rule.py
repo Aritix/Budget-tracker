@@ -91,9 +91,8 @@ class Rules:
         return len(self.elements)
 
     @classmethod
-    def load(cls, filename):
-        with open(filename, "r") as file:
-            dict_rules = yaml.safe_load(file)
+    def load(cls, file):
+        dict_rules = yaml.safe_load(file.stream)
         rules = Rules()
         for name, rule in dict_rules["categories"].items():
             rules.add_rule_object(Rule.load(name, rule))

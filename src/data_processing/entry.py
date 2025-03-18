@@ -1,16 +1,40 @@
 ## Entries classes and functions
 import csv
+import base64
 
 
 class Entry:
-    def __init__(self, price=0, day="00", month="00", description=""):
+    delimiter = "¬"
+    def __init__(self, price=0, day="00", month="00", description="", category=None):
         self.price = price
         self.day = day
         self.month = month
         self.description = description
+        self.category = category
+
+    def save(self, filename=None, tostring=True):
+        res = base64.b64encode(
+            f"{self.price}{Entry.delimiter}{self.day}{Entry.delimiter}{self.month}{Entry.delimiter}{self.description}{Entry.delimiter}{self.category if self.category else "None"}".encode()
+        )
+        if tostring:
+            return res.decode()
+        if filename:
+            with open(filename, "w") as f:
+                f.write(res)
+        return res
+
+    @classmethod
+    def load(cls, data):
+        data = base64.b64decode(data).decode()
+        data = data.split(cls.delimiter)
+        return cls(
+            price=float(data[0]), day=data[1], month=data[2], description=data[3], category=data[4] if data[4] != "None" else None
+        )
+
+
 
     def __str__(self):
-        return f"<Entry object {self.description} {self.price} {self.month} {self.day}>"
+        return f"<Entry object {self.description} {self.price} {self.month} {self.day} {self.category}>"
 
 
 class Entries:
@@ -24,6 +48,9 @@ class Entries:
     def add_entries(self, entries: list[Entry]):
         for entry in entries:
             self.add_entry_object(entry)
+
+    def __len__(self):
+        return len(self.elements)
 
     def __iter__(self):
         self.iteration = 0
@@ -42,6 +69,27 @@ class Entries:
             + "\n".join(["|\t" + str(entry) for entry in self])
             + "\n-"
         )
+
+    def save(self, filename=None, tostring=True):
+        res = ""
+        for entry in self:
+            res += entry.save(tostring=True) + " "
+        if tostring:
+            return res
+        if filename:
+            with open(filename, "w") as f:
+                f.write(res)
+        return res
+
+    @classmethod
+    def load(cls, data):
+        data = data.split(" ")
+        entries = Entries()
+        for entry in data:
+            entries.add_entry_object(Entry.load(entry))
+        return entries
+    
+
 
     @classmethod
     def import_from_file(cls, filename):

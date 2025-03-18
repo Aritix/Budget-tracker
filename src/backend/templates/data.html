@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Analytics Dashboard</title>
+    <link rel="stylesheet" href="./static/data.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script> </head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Expense Analytics</h1>
+        </header>
+
+        <section class="filters">
+            <h2>Filters</h2>
+            <div class="filter-group">
+                <h3>Categories</h3>
+                <div id="category-filters">
+                    </div>
+            </div>
+            <div class="filter-group">
+                <h3>Months</h3>
+                <div id="month-filters">
+                    </div>
+            </div>
+        </section>
+
+        <section class="charts">
+            <div class="chart-container">
+                <canvas id="timeSeriesChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <canvas id="pieChart"></canvas>
+            </div>
+        </section>
+    </div>
+
+    <script src="./static/data.js"></script>
+</body>
+</html>

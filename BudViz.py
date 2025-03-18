@@ -42,11 +42,17 @@ def cli_entrypoint():
     references_arg = args.references
     update_refs_arg = args.update_refs
     input_arg = args.input
-    input_file_paths = []
+    input_file = []
+    rule_file = open(references_arg, 'r')
+
+    if os.path.isdir(input_arg):
+        pass
+    else:
+        input_file.append(open(input_arg, "r"))
 
     # Argument verification
 
-    main(input_file_paths, references_arg, output_arg, display_arg, update_refs_arg)
+    main(input_file, rule_file, output_arg, display_arg, update_refs_arg)
 
 
 

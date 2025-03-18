@@ -1,7 +1,7 @@
 from src.data_processing.parser import Parser
 from src.data_processing.entry import Entries, Entry
 from pypdf import PdfReader
-
+from werkzeug.datastructures import FileStorage
 
 class BNC_MasterCard_parser(Parser):
     """
@@ -54,8 +54,8 @@ class BNC_MasterCard_parser(Parser):
         return Entry(price=amount, day=d1, month=m1, description=descr)
 
     @classmethod
-    def recognize(cls, file_path: str) -> bool:
-        reader = PdfReader(file_path)
+    def recognize(cls, file: FileStorage) -> bool:
+        reader = PdfReader(file.stream)
         full_text = "\n".join(page.extract_text() for page in reader.pages)
         keywords = ["MASTERCARD SOLUTIONS", "National Bank"]
         if all([kw in full_text for kw in keywords]):

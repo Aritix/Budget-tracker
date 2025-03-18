@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from src.data_processing.constantes import YEAR, CURRENCY
 from random import shuffle
+from openpyxl import Workbook
+import json
 
 
 class Expenses:
@@ -55,11 +57,15 @@ class Expenses:
     def __init__(self, default_class="Autres"):
         self.default_class = default_class
         self.sums = {default_class: 0}
+        self.entries: Entries = Entries()
         self.time_sums = {}
         self.time_min = None
         self.time_max = None
 
     def add_expense(self, entry: Entry, category_name: str = default_class):
+        if not entry.category:
+            entry.category = category_name
+        self.entries.add_entry_object(entry)
         day = entry.day
         month = entry.month
         self.sums[category_name] = entry.price + (
@@ -95,6 +101,29 @@ class Expenses:
             str_res += f"{category}, {amount}\n"
         return str_res
 
+    def export_to_spreadsheet(self, filename="output_formulas.xlsx"):
+        wb = Workbook()
+        sheet = wb.active
+
+        # Write data and labels
+        sheet["A1"] = "Date"
+        sheet["B1"] = "Amount"
+        sheet["C1"] = "Description"
+        sheet["D1"] = "Category"
+        for i, entry in enumerate(self.entries, start=2):
+            sheet.cell(row=i, column=1, value=f"{entry.day}/{entry.month}")
+            sheet.cell(row=i, column=2, value=entry.price)
+            sheet.cell(row=i, column=3, value=entry.description)
+            sheet.cell(row=i, column=4, value=entry.category)
+
+        # Write formulas (e.g., SUMIF)
+        sheet["E1"] = "Sum of A"
+        sheet["E2"] = '=SUMIF(A2:A{}, "A", B2:B{})'.format(len(self.entries) + 1, len(self.entries) + 1)
+        sheet["F1"] = "Sum of B"
+        sheet["F2"] = '=SUMIF(A2:A{}, "B", B2:B{})'.format(len(self.entries) + 1, len(self.entries) + 1)
+
+        wb.save(filename)
+ 
     def time_graph(self, subplot=None, SavedFileName=None, show=False):
         labels = self.time_sums.keys()
         items = sum([self.time_sums[label] for label in labels], [])
@@ -149,7 +178,6 @@ class Expenses:
     def income_pie(self, subplot=None, SavedFileName=None, show=False):
         labels = self.sums.keys()
         amounts = [(-self.sums[name] if self.sums[name] <= 0 else 0) for name in labels]
-        print(labels, amounts)
         ax = plt.subplot(111) if subplot == None else subplot
 
         def make_autopct(values):
@@ -244,6 +272,57 @@ class Expenses:
         else:
             if show:
                 plt.show()
+
+    def save(self, filename="outputs.json", tostring=False):
+        obj = {
+            "default_class": self.default_class,
+            "entries": self.entries.save(),
+        }
+        if filename:
+            with open(filename, "w") as file:
+                file.write(json.dumps(obj))
+        if tostring:
+            return json.dumps(obj)  
+    
+    def get_category_json(self):
+        positive_sums = {category: amount for category, amount in self.sums.items() if amount > 0}
+        return positive_sums
+        return self.sums
+    
+    def get_months_json(self):
+        all_months = []
+        months_sums = {}
+        entry : Entry = None
+        for entry in self.entries:
+            if entry.month not in all_months:
+                all_months.append(entry.month)
+                months_sums[entry.month] = max(entry.price,0)
+            else:
+                months_sums[entry.month] += max(entry.price,0)
+
+        return months_sums
+
+    @classmethod
+    def load(cls, filename="outputs.json"):
+        with open(filename, "r") as file:
+            obj = json.load(file)
+        expenses = Expenses(default_class=obj["default_class"])
+        entries = Entries.load(obj["entries"].strip())
+        for entry in entries:
+            expenses.add_expense(entry, entry.category)
+        return expenses
+
+    def filter(self, category_filter: list ,time_filter: list):
+        new_expenses = Expenses()
+        for entry in self.entries:
+            # Category filter
+            if entry.category in category_filter or '*' in category_filter: # and entry.day in time_filter:
+                new_expenses.add_expense(entry, entry.category)
+                # Time filter TODO
+            else:
+                print(f"{entry.category} not in {category_filter}")
+        print(f"total length {len(new_expenses.entries)} vs {len(self.entries)}")
+        return new_expenses
 
     def __str__(self):
         return f"<Expenses object with total amount of {sum(self.sums.values())}>"

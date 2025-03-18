@@ -1,0 +1,92 @@
+/* styles.css */
+
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.filters {
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap; /* Allow filters to wrap on smaller screens */
+}
+
+.filter-group {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.filter-group h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: #555;
+}
+
+#category-filters, #month-filters {
+    display: flex;
+    gap: 8px;
+    justify-content: center; /* Center buttons */
+    flex-wrap: wrap; /* Allow buttons to wrap */
+}
+
+button {
+    padding: 8px 15px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    background-color: #eee;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease;
+}
+
+button.active {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+button:hover, button:focus {
+    background-color: #ddd;
+    outline: none; /* Remove default focus outline */
+}
+
+button.active:hover, button.active:focus {
+    background-color: #0056b3;
+}
+
+
+.charts {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap; /* Allow charts to wrap */
+    padding: 20px 0;
+}
+
+.chart-container {
+    width: 48%; /* Adjust as needed for chart size */
+    min-width: 300px; /* Minimum width for smaller screens */
+    margin-bottom: 20px; /* Space between charts if stacked */
+}
+
+canvas {
+    max-width: 100%; /* Ensure canvas doesn't overflow container */
+    height: auto; /* Maintain aspect ratio */
+}

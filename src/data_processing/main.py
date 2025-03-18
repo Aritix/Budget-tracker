@@ -11,9 +11,7 @@ import os
 import argparse
 
 
-# Parsing function
-
-def main(input : list, rules_path : str, output_path, display: bool, update_refs: bool):
+def main(files : list, rules : str, output_path, display: bool, update_refs: bool):
     """
     Begin the treatment of documents.
 
@@ -23,32 +21,41 @@ def main(input : list, rules_path : str, output_path, display: bool, update_refs
     -display : boolean to display the graphs
     -update_refs : boolean to update the references
     """
-    input_file_paths = []
-    for path in input:
-        if not os.path.exists(path):
-            print("Error : one of the input paths does exists.")
-            return 1
-        if os.path.isdir(path):
-            for entry in os.listdir(path):
-                combined_path = os.path.join(path, entry)
-                if os.path.splitext(entry)[1] == '.pdf' and os.path.isfile(combined_path):
-                    input_file_paths.append(combined_path)
-            print(f"Found {len(input_file_paths)} files.")
-        elif os.path.isfile(path):
-            input_file_paths.append(path)
-        else:
-            print("Error : Unexpected behaviour. The input is neither a file or a directory but does exist ?")
-            return 1
     # Program launch
     entries = Entries()
-    for file_path in input_file_paths:
-        pdf_parser = parser_identifier(file_path)
+    for file in files:
+        pdf_parser = parser_identifier(file)
         if pdf_parser:
-            pdf_parser.load(file_path)
+            pdf_parser.load(file)
             entries.add_entries(pdf_parser.transform_to_entries())
-    rules = Rules.load(rules_path)
+    rules = Rules.load(rules)
     expense_parser = Expenses_parser()
     expense_parser.load(entries, rules)
     expenses = expense_parser.parse(update_rules=update_refs)
-    expenses.all_graph(SavedFileName=output_path, show=display)
+    expenses.all_graph(show=display)
+    expenses.save()
+    expenses.export_to_spreadsheet()
     return 1
+
+
+def filter(time_filter: list, category_filter: list) -> Expenses:
+    """
+    Filter the data according to the filters.
+
+    -time_filter : string of the time filter
+    -category_filter : string of the category filter
+    """
+    expenses = Expenses.load("outputs.json")
+    filtered_expenses = expenses.filter(time_filter, category_filter)
+    return filtered_expenses
+
+def getMetaData() -> dict:
+    """
+    Get the categories and months of the expenses.
+    """
+    expenses = Expenses.load("outputs.json")
+    categories = expenses.get_category_json()
+    categories = [k for k in categories.keys() if categories[k] > 0]
+    months = expenses.get_months_json()
+    months = [k for k in months.keys() if months[k] > 0]
+    return {"categories": categories, "months": months}
