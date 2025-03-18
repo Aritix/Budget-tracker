@@ -17,7 +17,12 @@ pip install -r requirements.txt
 ```
 
 # Usage
-
+## Web interface
+```
+flask --app src/backend/app.py run
+```
+## Command Line
+*Not working at the moment.*
 ```
 py BudViz.py [-h] [-r REFERENCES] [-o OUTPUT] [-d] [--update-refs] input
 ```

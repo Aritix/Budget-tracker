@@ -1,9 +1,13 @@
 ## Entries classes and functions
 import csv
 import base64
+from typing import Self 
 
 
 class Entry:
+    """
+    Object representing a transaction (expense or income) with a context.
+    """
     delimiter = "¬"
     def __init__(self, price=0, day="00", month="00", description="", category=None):
         self.price = price
@@ -12,7 +16,10 @@ class Entry:
         self.description = description
         self.category = category
 
-    def save(self, filename=None, tostring=True):
+    def save(self, filename=None, tostring=True) -> str | None:
+        """
+        Save the *Entry* objects as a JSON string. Can be later loaded by the *load* class method.
+        """
         res = base64.b64encode(
             f"{self.price}{Entry.delimiter}{self.day}{Entry.delimiter}{self.month}{Entry.delimiter}{self.description}{Entry.delimiter}{self.category if self.category else "None"}".encode()
         )
@@ -24,7 +31,10 @@ class Entry:
         return res
 
     @classmethod
-    def load(cls, data):
+    def load(cls, data: str) -> Self:
+        """
+        Load an *Entry* object saved with the *save* method.
+        """
         data = base64.b64decode(data).decode()
         data = data.split(cls.delimiter)
         return cls(
@@ -38,6 +48,9 @@ class Entry:
 
 
 class Entries:
+    """
+    Collection of entries.
+    """
     def __init__(self):
         self.elements = []
         self.iteration = -1
@@ -70,7 +83,10 @@ class Entries:
             + "\n-"
         )
 
-    def save(self, filename=None, tostring=True):
+    def save(self, filename=None, tostring=True) -> str | None:
+        """
+        Save the *Entries* objects as a JSON string. Can be later loaded by the *load* class method.
+        """
         res = ""
         for entry in self:
             res += entry.save(tostring=True) + " "
@@ -82,7 +98,10 @@ class Entries:
         return res
 
     @classmethod
-    def load(cls, data):
+    def load(cls, data: str) -> Self:
+        """
+        Load an *Entries* object saved with the *save* method.
+        """
         data = data.split(" ")
         entries = Entries()
         for entry in data:

@@ -7,9 +7,13 @@ from src.data_processing.constantes import YEAR, CURRENCY
 from random import shuffle
 from openpyxl import Workbook
 import json
+from typing import Self 
 
 
 class Expenses:
+    """
+    Object to track expenses and incomes based on the *Entry* and *Entries* objects.
+    """
     default_class = "Autres"
     colors = [
         # "#001219", # palet 1
@@ -102,6 +106,9 @@ class Expenses:
         return str_res
 
     def export_to_spreadsheet(self, filename="output_formulas.xlsx"):
+        """
+        Export the *Expenses* object to a .xlsx spreadsheet format.
+        """
         wb = Workbook()
         sheet = wb.active
 
@@ -273,7 +280,10 @@ class Expenses:
             if show:
                 plt.show()
 
-    def save(self, filename="outputs.json", tostring=False):
+    def save(self, filename="outputs.json", tostring=False) -> str | None:
+        """
+        Save the *Expenses* objects as a JSON string. Can be later loaded by the *load* class method.
+        """
         obj = {
             "default_class": self.default_class,
             "entries": self.entries.save(),
@@ -284,12 +294,19 @@ class Expenses:
         if tostring:
             return json.dumps(obj)  
     
-    def get_category_json(self):
+    def get_category_json(self) -> dict:
+        """
+        Get the categories and sums by category of the *Expenses* object.
+        Only the positive entries for now.
+        """
         positive_sums = {category: amount for category, amount in self.sums.items() if amount > 0}
         return positive_sums
-        return self.sums
     
-    def get_months_json(self):
+    def get_months_json(self) -> dict:
+        """
+        Get the months and sums by month of the *Expenses* object.
+        Only the positive entries for now.
+        """
         all_months = []
         months_sums = {}
         entry : Entry = None
@@ -302,17 +319,10 @@ class Expenses:
 
         return months_sums
 
-    @classmethod
-    def load(cls, filename="outputs.json"):
-        with open(filename, "r") as file:
-            obj = json.load(file)
-        expenses = Expenses(default_class=obj["default_class"])
-        entries = Entries.load(obj["entries"].strip())
-        for entry in entries:
-            expenses.add_expense(entry, entry.category)
-        return expenses
-
-    def filter(self, category_filter: list ,time_filter: list):
+    def filter(self, category_filter: list[str] ,time_filter: list[str]) -> Self:
+        """
+        Filter the entries of the *Expenses* object based on given filters (by category name and time).
+        """
         new_expenses = Expenses()
         for entry in self.entries:
             # Category filter
@@ -326,3 +336,16 @@ class Expenses:
 
     def __str__(self):
         return f"<Expenses object with total amount of {sum(self.sums.values())}>"
+
+    @classmethod
+    def load(cls, filename="outputs.json") -> Self:
+        """
+        Load an *Expenses* object saved with the *save* method.
+        """
+        with open(filename, "r") as file:
+            obj = json.load(file)
+        expenses = Expenses(default_class=obj["default_class"])
+        entries = Entries.load(obj["entries"].strip())
+        for entry in entries:
+            expenses.add_expense(entry, entry.category)
+        return expenses

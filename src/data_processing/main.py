@@ -1,6 +1,7 @@
-# copie colle un format csv, indique les colonnes de prix, description, date
-# Fournit une liste de mot-clé d'attribution d'entrées dans des catégories
-# Parse les entrées, donne les sommes et possibilités de construire les grqphiques temporels
+"""
+Main workflow functions.
+"""
+
 from src.data_processing.entry import Entries, Entry
 from src.data_processing.rule import Rules, Rule
 from src.data_processing.expense import Expenses
@@ -38,7 +39,7 @@ def main(files : list, rules : str, output_path, display: bool, update_refs: boo
     return 1
 
 
-def filter(time_filter: list, category_filter: list) -> Expenses:
+def filter(time_filter: list[str], category_filter: list[str]) -> Expenses:
     """
     Filter the data according to the filters.
 
