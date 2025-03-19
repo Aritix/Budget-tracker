@@ -67,6 +67,7 @@ class Expenses:
         self.time_max = None
 
     def add_expense(self, entry: Entry, category_name: str = default_class):
+        entry.price = round(entry.price, 2)
         if not entry.category:
             entry.category = category_name
         self.entries.add_entry_object(entry)
@@ -300,7 +301,8 @@ class Expenses:
         Only the positive entries for now.
         """
         positive_sums = {category: amount for category, amount in self.sums.items() if amount > 0}
-        return positive_sums
+        negative_sums = {category: amount for category, amount in self.sums.items() if amount < 0}
+        return positive_sums, negative_sums
     
     def get_months_json(self) -> dict:
         """
@@ -309,13 +311,37 @@ class Expenses:
         """
         all_months = []
         months_sums = {}
+        positive_sums = {}
+        negative_sums = {}
         entry : Entry = None
         for entry in self.entries:
             if entry.month not in all_months:
                 all_months.append(entry.month)
-                months_sums[entry.month] = max(entry.price,0)
+                positive_sums[entry.month] = 0
+                negative_sums[entry.month] = 0
+            if entry.price > 0:
+                positive_sums[entry.month] += entry.price
             else:
-                months_sums[entry.month] += max(entry.price,0)
+                negative_sums[entry.month] += entry.price
+        return positive_sums, negative_sums
+        ## New format
+        income_json = {}
+        outcome_json = {}
+        months_json = {'incomes' : income_json, 'outcomes' : outcome_json}
+        month = ''
+        transaction_direction = ''
+        for entry in self.entries:
+            month = entry.month
+            if entry.price > 0:
+                json_to_fill = outcome_json
+            elif entry.price < 0:
+                json_to_fill = income_json
+            if month not in json_to_fill:
+                json_to_fill[month] = 0
+            json_to_fill[month] += entry.price
+        print(months_json)
+
+
 
         return months_sums
 
@@ -327,11 +353,10 @@ class Expenses:
         for entry in self.entries:
             # Category filter
             if entry.category in category_filter or '*' in category_filter: # and entry.day in time_filter:
-                new_expenses.add_expense(entry, entry.category)
-                # Time filter TODO
+                if entry.month in time_filter or '*' in time_filter: # and entry.day in time_filter:
+                    new_expenses.add_expense(entry, entry.category)
             else:
                 print(f"{entry.category} not in {category_filter}")
-        print(f"total length {len(new_expenses.entries)} vs {len(self.entries)}")
         return new_expenses
 
     def __str__(self):

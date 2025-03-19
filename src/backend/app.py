@@ -39,9 +39,21 @@ def getFilteredDataRoute():
     category_filter = request.get_json()['category_filter']
     new_expense = filter(time_filter, category_filter)
 
+    cat_pos, cat_neg = new_expense.get_category_json()
+    mon_pos, mon_neg = new_expense.get_months_json()
     return {
-        'categories' : json.dumps(new_expense.get_category_json()),
-        'months' : json.dumps(new_expense.get_months_json())
+        'incomes' : {
+            'categories' : list(cat_neg.keys()),
+            'categorie_sums' : list(map(lambda x : -x, list(cat_neg.values()))),
+            'months' : list(mon_neg.keys()),
+            'month_sums' : list(map(lambda x : -x, list(mon_neg.values())))
+        },
+        'outcomes' : {
+            'categories' : list(cat_pos.keys()),
+            'categorie_sums' : list(cat_pos.values()),
+            'months' : list(mon_pos.keys()),
+            'month_sums' : list(mon_pos.values())
+        }
     }
 
 @app.route("/getMetaData", methods=["GET"])
@@ -50,9 +62,14 @@ def getMetaDataRoute():
     Route handler for sending the metadata to the frontend.
     *Should not be used for now*
     """
-    metada = getMetaData()
     CategoriesNames = metada['categories']
     months = metada['months']
     return {
-        'categories' : json.dumps(CategoriesNames),
-        'months' : json.dumps(months)}
+        'incomes' : {
+            'categories' : json.dumps(CategoriesNames),
+            'months' : json.dumps(months)},
+        'outcomes' : {
+            'categories' : json.dumps(CategoriesNames),
+            'months' : json.dumps(months)}
+    }
+        

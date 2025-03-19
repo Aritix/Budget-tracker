@@ -33,9 +33,9 @@ def main(files : list, rules : str, output_path, display: bool, update_refs: boo
     expense_parser = Expenses_parser()
     expense_parser.load(entries, rules)
     expenses = expense_parser.parse(update_rules=update_refs)
-    expenses.all_graph(show=display)
+    # expenses.all_graph(show=display)
     expenses.save()
-    expenses.export_to_spreadsheet()
+    # expenses.export_to_spreadsheet()
     return 1
 
 
