@@ -2,6 +2,7 @@ from src.data_processing.parser import Parser
 from src.data_processing.entry import Entries, Entry
 from pypdf import PdfReader
 from werkzeug.datastructures import FileStorage
+import re
 
 class BNC_MasterCard_parser(Parser):
     """
@@ -18,6 +19,8 @@ class BNC_MasterCard_parser(Parser):
         Determines whether or not the given line is an expense or not.
         """
         # Number of spaces check
+        # if "WATER" in line:
+        print(line)
         if line.count(" ") >= 2:
             # Price format check
             price = line.split(" ")[-1]
@@ -45,6 +48,7 @@ class BNC_MasterCard_parser(Parser):
         """
         Given a line that have been approved by 'is_line_an_expense', parse its content into an Entry object.
         """
+        print(line)
         m1 = line[:2]
         d1 = line[2:4]
         ref = line[4:14]
@@ -52,6 +56,12 @@ class BNC_MasterCard_parser(Parser):
         amount_str = line.split(" ")[-1]
         amount = -float(amount_str[:-1]) if '-' in amount_str else float(amount_str)
         return Entry(price=amount, day=d1, month=m1, description=descr)
+
+    def preprocessing(self) -> None:
+        """
+        Modify the full_text attribute before passing parsing the lines
+        """
+        self.full_text = self.full_text.replace('\nMONTANTORIGINALENDEVISE', ' DEVISE ')
 
     @classmethod
     def recognize(cls, file: FileStorage) -> bool:

@@ -30,18 +30,33 @@ class LBP_parser(Parser):
         Given a line that have been approved by 'is_line_an_expense', parse its content into an Entry object.
         """
 
-        print(line)
         # Price
-        price = re.search(r"((\d{1,3})( \d{3})*( \d{3})?,[0-9]{2})", line).group(1)
-        # price = "".join(match.group(1) for match in re.finditer('((\d{1,3})( \d{3})*( \d{3})?,[0-9]{2})', line)
-        print(price, type(price), float(price.replace(' ','').replace(',','.')))
-        print(line.split(price)[0])
+        print(line)
+        currency = "EUR"
+        price_pattern = r" ((\d{1,3})( \d{3})*( \d{3})?,[0-9]{2})"
+        price = re.search(price_pattern, line).group(1)
+        if len(re.findall(price_pattern, line)) == 1:
+            currency = "EUR"
+        elif len(re.findall(r" [A-Z]{3} "+price, line)) > 0:
+            # Parse the currency
+            i = line.index(price)
+            currency = line[i-4:i-1]
+        
+        # Knowing whether an entry is an income or an outcome is not easy with this format
+        incomes_indicators = ["VIREMENT DE"]
+        sign = 1
+        for indicator in incomes_indicators:
+            if indicator in line:
+                sign = -1
+
+        match = re.match(r"([0-9]{2})\/([0-9]{2})(.+)$", line.split(price)[0])
+        day = match.group(1)
         match = re.match(r"([0-9]{2})\/([0-9]{2})(.+)$", line.split(price)[0])
         day = match.group(1)
         month = match.group(2)
         descr = match.group(3)
-        print(day, month, descr, price)
-        return Entry(float(price.replace(' ','').replace(',','.')), day, month, descr)
+        print(Entry(sign*float(price.replace(' ','').replace(',','.')), day, month, descr, currency=currency))
+        return Entry(sign*float(price.replace(' ','').replace(',','.')), day, month, descr, currency=currency)
 
     def preprocessing(self):
         """

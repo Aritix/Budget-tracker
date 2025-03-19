@@ -9,12 +9,13 @@ class Entry:
     Object representing a transaction (expense or income) with a context.
     """
     delimiter = "¬"
-    def __init__(self, price=0, day="00", month="00", description="", category=None):
+    def __init__(self, price=0, day="00", month="00", description="", category=None, currency="CAD"):
         self.price = price
         self.day = day
         self.month = month
         self.description = description
         self.category = category
+        self.currency = currency
 
     def save(self, filename=None, tostring=True) -> str | None:
         """
