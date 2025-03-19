@@ -56,6 +56,7 @@ jobs:
             echo \"EC2 Instance IP: \$INSTANCE_IP\"
             echo \"EC2 Instance State: \$INSTANCE_STATE\"
           fi
+          export instance_ip=$INSTANCE_ID
           # --- 2. Check Server Availability --- # SKIPPED AS AZURE DOES NOT ALLOW PING
           # echo '--- 2. Checking Server Availability ---'
           # if ping -c 1 \"\$INSTANCE_IP\" > /dev/null; then
@@ -155,3 +156,5 @@ jobs:
           -e REMOTE_REPO_PATH=$REMOTE_REPO_PATH \
           -e FLASK_APP_PORT=$FLASK_APP_PORT \
           $IMAGE_FULL_NAME /deploy.sh
+        
+        echo "Instance IP : $instance_ip"
