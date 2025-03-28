@@ -8,7 +8,23 @@ from random import shuffle
 from openpyxl import Workbook
 import json
 from typing import Self 
+import yaml
+from yaml import CLoader as Loader, CDumper as Dumper
 
+
+
+# # Custom Representer
+# def expenses_representer(dumper, data):
+#     return dumper.represent_mapping("!Expenses", data.__getstate__())
+
+
+# # Custom Constructor
+# def expenses_constructor(loader, node):
+#     print('---in---')
+#     state = loader.construct_mapping(node)
+#     obj = Expenses()  # Create an instance with dummy values
+#     obj.__setstate__(state)
+#     return obj
 
 class Expenses:
     """
@@ -59,46 +75,24 @@ class Expenses:
     ]
 
     def __init__(self, default_class="Autres"):
+        self.rules: Rules = Rules()
+        self.entries: Entries = Entries()
         self.default_class = default_class
         self.sums = {default_class: 0}
-        self.entries: Entries = Entries()
-        self.time_sums = {}
-        self.time_min = None
-        self.time_max = None
+        self.categories = []
 
-    def add_expense(self, entry: Entry, category_name: str = default_class):
-        entry.price = round(entry.price, 2)
-        if not entry.category:
-            entry.category = category_name
-        self.entries.add_entry_object(entry)
-        day = entry.day
-        month = entry.month
+    def add_expense(self, entry: Entry, category_name: str):
+        """
+        Update the object with the new categorized entry
+        """
+        entry.category = category_name
+        if category_name not in self.categories:
+            self.categories.append(category_name)
+        entry.price = round(entry.price, 2)        
+        # self.entries.add_entry_object(entry)
         self.sums[category_name] = entry.price + (
             self.sums[category_name] if category_name in self.sums.keys() else 0
         )
-        temp_key = (day, month)
-        if category_name in self.time_sums.keys():
-            self.time_sums[category_name].append(((day, month), entry.price))
-        else:
-            self.time_sums[category_name] = [((day, month), entry.price)]
-        if self.time_min != None:
-            self.time_min = min(
-                self.time_min,
-                datetime.datetime.strptime(f"{YEAR}-{month}-{day}", "%Y-%m-%d"),
-            )
-        else:
-            self.time_min = datetime.datetime.strptime(
-                f"{YEAR}-{month}-{day}", "%Y-%m-%d"
-            )
-        if self.time_max != None:
-            self.time_max = max(
-                self.time_max,
-                datetime.datetime.strptime(f"{YEAR}-{month}-{day}", "%Y-%m-%d"),
-            )
-        else:
-            self.time_max = datetime.datetime.strptime(
-                f"{YEAR}-{month}-{day}", "%Y-%m-%d"
-            )
 
     def show_by_category(self):
         str_res = ""
@@ -281,7 +275,7 @@ class Expenses:
             if show:
                 plt.show()
 
-    def save(self, filename="outputs.json", tostring=False) -> str | None:
+    def oldSave(self, filename="outputs.json", tostring=False) -> str | None:
         """
         Save the *Expenses* objects as a JSON string. Can be later loaded by the *load* class method.
         """
@@ -294,7 +288,14 @@ class Expenses:
                 file.write(json.dumps(obj))
         if tostring:
             return json.dumps(obj)  
-    
+
+    def save(self, filename="expenses.yml") -> None:
+        res = yaml.dump(self, Dumper=Dumper)
+        if filename:
+            with open(filename, "w") as f:
+                f.write(res)
+        return res
+
     def get_category_json(self) -> dict:
         """
         Get the categories and sums by category of the *Expenses* object.
@@ -310,7 +311,7 @@ class Expenses:
         Only the positive entries for now.
         """
         all_months = []
-        months_sums = {}
+        # months_sums = {}
         positive_sums = {}
         negative_sums = {}
         entry : Entry = None
@@ -345,25 +346,55 @@ class Expenses:
 
         return months_sums
 
-    def filter(self, category_filter: list[str] ,time_filter: list[str]) -> Self:
+    def filter(self, time_filter : list[str] ,category_filter: list[str]) -> Self:
         """
         Filter the entries of the *Expenses* object based on given filters (by category name and time).
         """
         new_expenses = Expenses()
+        new_expenses.rules = self.rules
         for entry in self.entries:
             # Category filter
             if entry.category in category_filter or '*' in category_filter: # and entry.day in time_filter:
                 if entry.month in time_filter or '*' in time_filter: # and entry.day in time_filter:
                     new_expenses.add_expense(entry, entry.category)
-            else:
-                print(f"{entry.category} not in {category_filter}")
+                    new_expenses.entries.add_entry_object(entry)
         return new_expenses
+
+    def getUncategorizedEntries(self) -> Entries:
+        filtered_entries = Entries()
+        for entry in self.entries:
+            if entry.category == self.default_class or entry.category is None:
+                filtered_entries.add_entry_object(entry)
+        return filtered_entries
+
+    def updateCategorization(self, only_uncategorized: bool = True) -> None:
+        expenses_parser = Expenses_parser()
+        expenses_parser.load(self.entries, self.rules, self)
+        expenses_parser.parse(update_categorized=not only_uncategorized)
 
     def __str__(self):
         return f"<Expenses object with total amount of {sum(self.sums.values())}>"
 
+    def __getstate__(self):
+        # Return a dictionary containing the attributes you want to serialize
+        return {
+            "rules": self.rules,
+            "entries": self.entries,
+            "default_class": self.default_class,
+            "sums": self.sums,
+            "categories": self.categories,
+        }
+
+    def __setstate__(self, state):
+        # Reconstruct the object from the state dictionary
+        self.rules = state["rules"]
+        self.entries = state["entries"]
+        self.default_class = state["default_class"]
+        self.sums = state["sums"]
+        self.categories = state["categories"]
+
     @classmethod
-    def load(cls, filename="outputs.json") -> Self:
+    def oldLoad(cls, filename="outputs.json") -> Self:
         """
         Load an *Expenses* object saved with the *save* method.
         """
@@ -374,3 +405,11 @@ class Expenses:
         for entry in entries:
             expenses.add_expense(entry, entry.category)
         return expenses
+
+    @classmethod
+    def load(cls, filename="expenses.yml") -> Self:
+        # yaml.add_representer(Expenses, expenses_representer)
+        # yaml.add_constructor(u'!Expenses', expenses_constructor)
+        with open(filename, "r") as f:
+            stream = f.read()
+        return yaml.load(stream, Loader=Loader)

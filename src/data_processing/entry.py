@@ -1,15 +1,26 @@
 ## Entries classes and functions
 import csv
+import json
 import base64
-from typing import Self 
+from typing import Self
 
 
 class Entry:
     """
     Object representing a transaction (expense or income) with a context.
     """
+
     delimiter = "¬"
-    def __init__(self, price=0, day="00", month="00", description="", category=None, currency="CAD"):
+
+    def __init__(
+        self,
+        price=0,
+        day="00",
+        month="00",
+        description="",
+        category=None,
+        currency="CAD",
+    ):
         self.price = price
         self.day = day
         self.month = month
@@ -31,6 +42,16 @@ class Entry:
                 f.write(res)
         return res
 
+    def json(self) -> dict:
+        return {
+            "amount": self.price,
+            "day": self.day,
+            "month": self.month,
+            "description": self.description,
+            "category": self.category,
+            "currency": self.currency,
+        }
+
     @classmethod
     def load(cls, data: str) -> Self:
         """
@@ -39,26 +60,47 @@ class Entry:
         data = base64.b64decode(data).decode()
         data = data.split(cls.delimiter)
         return cls(
-            price=float(data[0]), day=data[1], month=data[2], description=data[3], category=data[4] if data[4] != "None" else None
+            price=float(data[0]),
+            day=data[1],
+            month=data[2],
+            description=data[3],
+            category=data[4] if data[4] != "None" else None,
         )
-
-
 
     def __str__(self):
         return f"<Entry object {self.description} {self.price} {self.month} {self.day} {self.category}>"
 
+    def __getstate__(self) -> dict:
+        return {
+            "price": self.price,
+            "day": self.day,
+            "month": self.month,
+            "description": self.description,
+            "category": self.category,
+            "currency": self.currency,
+        }
+
+    def __setstate__(self, state) -> dict:
+        self.price = state["price"]
+        self.day = state["day"]
+        self.month = state["month"]
+        self.description = state["description"]
+        self.category = state["category"]
+        self.currency = state["currency"]
+    
 
 class Entries:
     """
     Collection of entries.
     """
+
     def __init__(self):
         self.elements = []
         self.iteration = -1
 
     def add_entry_object(self, entry: Entry):
         self.elements.append(entry)
-    
+
     def add_entries(self, entries: list[Entry]):
         for entry in entries:
             self.add_entry_object(entry)
@@ -70,7 +112,7 @@ class Entries:
         self.iteration = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> Entry:
         if self.iteration >= len(self.elements):
             raise StopIteration
         iteration = self.elements[self.iteration]
@@ -84,7 +126,7 @@ class Entries:
             + "\n-"
         )
 
-    def save(self, filename=None, tostring=True) -> str | None:
+    def oldSave(self, filename=None, tostring=True) -> str | None:
         """
         Save the *Entries* objects as a JSON string. Can be later loaded by the *load* class method.
         """
@@ -98,6 +140,20 @@ class Entries:
                 f.write(res)
         return res
 
+    def json(self) -> dict:
+        res = []
+        for entry in self:
+            res.append(entry.json())
+        return res
+
+    def __getstate__(self):
+        return {
+            "elements": self.elements,
+        }
+
+    def __setstate__(self, state):
+        self.elements = state["elements"]
+
     @classmethod
     def load(cls, data: str) -> Self:
         """
@@ -108,8 +164,6 @@ class Entries:
         for entry in data:
             entries.add_entry_object(Entry.load(entry))
         return entries
-    
-
 
     @classmethod
     def import_from_file(cls, filename):

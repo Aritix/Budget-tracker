@@ -5,36 +5,38 @@ from src.data_processing.expense import Expenses
 
 class Expenses_parser:
     def __init__(self):
-        self.entries = None
-        self.rules = None
-        self.sums = None
+        self.entries: Entries = Entries()
+        self.rules: Rules = Rules()
+        self.expenses: Expenses = Expenses()
 
-    def load(self, entries: Entries, rules: Rules):
+    def load(self, entries: Entries, rules: Rules, expenses: Expenses):
         self.entries = entries
         self.rules = rules
-        self.sums = Expenses()
+        self.expenses = expenses
 
-    def parse(self, update_rules: bool = False):
-        for entry in self.entries:
-            matches = []
-            for rule in self.rules:
-                for pattern in rule.patterns:
-                    if pattern.upper() in entry.description.upper():
-                        matches.append(rule.classe_name)
-
-            if len(matches) > 1:  # TODO Ne pas considéré si les matchs sont les mêmes
-                print(
-                    f"Plusieurs matchs rencontrés : {','.join(matches)} dans {entry.description}\nLe premier trouvé seulement sera considéré"
-                )
-            if len(matches) == 0:
-                print(f"Aucune correspondance trouvée : {entry.description}")
-                if update_rules:
-                    self.update_ref(entry)
+    def parse(self, update_rules: bool = False, update_categorized: bool = True) -> Expenses:
+        for entry in self.expenses.entries:
+            if (entry.category == self.expenses.rules.default) or update_categorized:
+                matches = []
+                for rule in self.expenses.rules:
+                    for pattern in rule.patterns:
+                        if pattern.upper() in entry.description.upper():
+                            matches.append(rule.classe_name)
+                if len(matches) > 1 and not matches.count(matches[0]) == len(matches):
+                    print(
+                        f"Plusieurs matchs rencontrés : {','.join(matches)} dans {entry.description}.Le premier trouvé seulement sera considéré"
+                    )
+                elif len(matches) == 0:
+                    if update_rules:
+                        self.update_ref(entry)
+                    else:
+                        self.expenses.add_expense(entry, category_name=self.expenses.rules.default)  # Ajout dans la catégorie par défaut
                 else:
-                    self.sums.add_expense(entry)  # Ajout dans 'Autres'
-            else:
-                self.sums.add_expense(entry, category_name=matches[0])
-        return self.sums
+                    self.expenses.add_expense(entry, category_name=matches[0])
+        return self.expenses
+
+    def parse_uncategorized(self):
+        self.parse(update_categorized=False)
 
     def update_ref(self, entry):
         print(
@@ -46,11 +48,11 @@ class Expenses_parser:
         if category.isdigit():
             classname = self.rules.get_classname_by_id(int(category))
             self.rules.add_pattern(category, keyword)
-            self.sums.add_expense(entry, category_name=classname)
+            self.expenses.add_expense(entry, category_name=classname)
         elif category:
             self.rules.add_ref_fields(
                 category, int(len(self.rules)), [keyword]
             )
-            self.sums.add_expense(entry, category_name=category)
+            self.expenses.add_expense(entry, category_name=category)
         else:
-            self.sums.add_expense(entry)  # Ajout dans 'Autres'
+            self.expenses.add_expense(entry)  # Ajout dans 'Autres'

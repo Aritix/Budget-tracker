@@ -1,0 +1,185 @@
+/* style.css */
+
+body {
+    font-family: sans-serif;
+    margin: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+.dashboard-container {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    text-align: center;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.main-content {
+    display: flex;
+    gap: 20px;
+}
+
+.entry-list-container {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    overflow-y: auto; /* In case of many entries */
+    max-height: 600px; /* Adjust as needed */
+}
+
+.entry-list-container h2 {
+    margin-top: 0;
+}
+
+#entry-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.entry-item {
+    border-bottom: 1px dashed #eee;
+    padding: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.entry-item:last-child {
+    border-bottom: none;
+}
+
+.entry-item:hover {
+    background-color: #f0f0f0;
+}
+
+.entry-item.selected {
+    background-color: #e0f7fa;
+    border-left: 5px solid #007bff;
+}
+
+.entry-details-container {
+    flex: 1;
+    border: 1px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.entry-details-container h2 {
+    margin-top: 0;
+}
+
+#entry-details {
+    margin-bottom: 20px;
+}
+
+.entry-detail {
+    margin-bottom: 10px;
+}
+
+.description-text {
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    background-color: #fff;
+    cursor: text;
+}
+
+.highlight {
+    background-color: yellow;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#add-keyword-button, #download-button {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #eee;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin-bottom: 10px;
+}
+
+#add-keyword-button:hover, #download-button:hover {
+    background-color: #ddd;
+}
+
+#add-keyword-button:disabled {
+    background-color: #f2f2f2;
+    color: #ccc;
+    cursor: not-allowed;
+}
+
+/* Pop-up Styling */
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    border-radius: 5px;
+    text-align: center;
+    display: none; /* Hidden by default */
+}
+
+.popup h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.popup select {
+    padding: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    width: 80%;
+    max-width: 300px;
+}
+
+.popup button {
+    padding: 10px 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #eee;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin: 5px;
+}
+
+.popup button:hover {
+    background-color: #ddd;
+}
+
+/* You can add any specific custom styles here that are not covered in styles.css */
+.entry-list-container h2 {
+    margin-top: 0;
+    color: #555;
+}
+
+.entry-list-container p {
+    color: #777;
+    font-size: 0.9em;
+}

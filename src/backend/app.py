@@ -1,16 +1,19 @@
 import os
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
-from src.data_processing.main import main, filter, getMetaData
+from src.data_processing.main import main, filter, getMetaData, getUncategorizedEntries, load, updateRules
+from src.data_processing.expense import Expenses#, expenses_representer, expenses_constructor
 from werkzeug.utils import secure_filename
-import random
-import time
 import json
+import yaml
 
 UPLOAD_FOLDER = "/tmp/BudViz/uploads"
 ALLOWED_EXTENSIONS = {"pdf", ".txt"}
 
 app = Flask(__name__)
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
+
+# Configuration
+
 
 
 @app.route("/")
@@ -25,9 +28,8 @@ def upload():
     if request.method == "POST":
         files = request.files.getlist("inputs")
         rules = request.files.get("reference")
-    output_path = "outputs.csv"
-    main(files, rules, output_path, False, False)
-
+        output_path = "outputs.csv"
+        main(files, rules, output_path, False, False)
     return render_template("data.html")
 
 @app.route("/getFilteredData", methods=["POST"])
@@ -73,3 +75,28 @@ def getMetaDataRoute():
             'months' : json.dumps(months)}
     }
         
+@app.route("/rules", methods=["GET", "POST"])
+def getRules():
+    """
+    Route handler for the *rules* page.
+    """
+    return render_template("rules.html")
+
+
+@app.route("/addKeywords", methods=["POST"])
+def addKeywords():
+    # print(type(request.data), json.loads(request.data))
+    # print(updateRules(json.loads(request.data)))
+    updateRules(json.loads(request.data))
+    return 'yes'
+
+@app.route("/UncategorizedEntries", methods=["GET"])
+def uncategorizedEntries():
+    return getUncategorizedEntries()
+
+@app.route("/categories", methods=["GET"])
+def getCategories():
+    expenses = Expenses.load()
+    categories = expenses.categories
+    return json.dumps(categories)
+    

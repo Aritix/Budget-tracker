@@ -31,7 +31,6 @@ class LBP_parser(Parser):
         """
 
         # Price
-        print(line)
         currency = "EUR"
         price_pattern = r" ((\d{1,3})( \d{3})*( \d{3})?,[0-9]{2})"
         price = re.search(price_pattern, line).group(1)
@@ -55,7 +54,6 @@ class LBP_parser(Parser):
         day = match.group(1)
         month = match.group(2)
         descr = match.group(3)
-        print(Entry(sign*float(price.replace(' ','').replace(',','.')), day, month, descr, currency=currency))
         return Entry(sign*float(price.replace(' ','').replace(',','.')), day, month, descr, currency=currency)
 
     def preprocessing(self):

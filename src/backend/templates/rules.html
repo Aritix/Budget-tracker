@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Category Keyword Editor</title>
+    <link rel="stylesheet" href="./static/rules.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>Category Keyword Editor</h1>
+            <p>Assign keywords to categories to improve automatic categorization.</p>
+        </header>
+
+        <section class="entry-list-container">
+            <h2>Uncategorized Entries</h2>
+            <p>Select an entry to categorize and extract keywords.</p>
+            <div id="uncategorized-entries-list">
+                <div class="entry-item" data-entry='{"date": "2025-03-15", "description": "Coffee at Starbucks", "amount": "$5.50", "id": "entry1"}'>
+                    <span>Date: 2025-03-15</span> - <span>Description: Coffee at Starbucks</span>
+                </div>
+                <div class="entry-item" data-entry='{"date": "2025-03-16", "description": "Grocery shopping at the market for dinner", "amount": "$45.20", "id": "entry2"}'>
+                    <span>Date: 2025-03-16</span> - <span>Description: Grocery shopping at the market for dinner</span>
+                </div>
+                <div class="entry-item" data-entry='{"date": "2025-03-17", "description": "Payment from Freelance Project - Website Design", "amount": "$500.00", "id": "entry3"}'>
+                    <span>Date: 2025-03-17</span> - <span>Description: Payment from Freelance Project - Website Design</span>
+                </div>
+                <p id="no-entries-message" style="display:none;">No uncategorized entries found.</p>
+            </div>
+        </section>
+
+        <div id="entry-details-popup" class="popup">
+            <div class="popup-content">
+                <span class="close-button" onclick="closePopup()">&times;</span>
+                <h2>Entry Details</h2>
+                <div id="popup-entry-date" class="entry-detail"></div>
+                <div id="popup-entry-amount" class="entry-detail"></div>
+                <div id="popup-entry-description" class="entry-detail description-text" onmouseup="highlightText()"></div>
+
+                <div>
+                    <label for="popup-category-select">Select Category:</label>
+                    <select id="popup-category-select">
+                        <option value="">-- Select Category --</option>
+                        </select>
+                </div>
+
+                <button onclick="addHighlightedKeyword()">Add Highlighted Text as Keyword</button>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <button onclick="downloadKeywords()">Download Updated Keywords File</button>
+        </div>
+    </div>
+
+    <script src="./static/rules.js"></script>
+</body>
+</html>

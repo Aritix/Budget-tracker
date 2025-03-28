@@ -20,13 +20,11 @@ class BNC_MasterCard_parser(Parser):
         """
         # Number of spaces check
         # if "WATER" in line:
-        print(line)
         if line.count(" ") >= 2:
             # Price format check
             price = line.split(" ")[-1]
             if price.count(".") == 1:
                 decimals = price.split(".")[1]
-                # print(line, price, decimals)
                 if (len(decimals) == 2 and decimals.isdigit()) or (
                     len(decimals) == 3 and decimals[:2].isdigit() and decimals[2] == "-"
                 ):
@@ -48,7 +46,6 @@ class BNC_MasterCard_parser(Parser):
         """
         Given a line that have been approved by 'is_line_an_expense', parse its content into an Entry object.
         """
-        print(line)
         m1 = line[:2]
         d1 = line[2:4]
         ref = line[4:14]

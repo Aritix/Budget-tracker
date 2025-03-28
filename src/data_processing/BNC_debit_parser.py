@@ -21,7 +21,6 @@ class BNC_debit_parser(Parser):
         Determines whether or not the given line is an expense or not.
         """
         line = line.strip()
-        # print(line)
         # Number of spaces check
         if line.count(" ") > 6:
             # Day and Month format check
@@ -77,10 +76,7 @@ class BNC_debit_parser(Parser):
         if line[-1] == '-':
             price = '-'+price[:-1]
         price = float(price)
-        # descr = ' '.join(line.replace(' ', '').split()[2:-2])
         descr = line[7:line.index('   ')]
-        # print(f"{day}, {month}, {price}, #{descr}#")
-        # input()
 
         return Entry(price, day, month, descr)
 
