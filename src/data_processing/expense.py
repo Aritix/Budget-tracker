@@ -7,71 +7,31 @@ from src.data_processing.constantes import YEAR, CURRENCY
 from random import shuffle
 from openpyxl import Workbook
 import json
-from typing import Self 
+from typing import Self
 import yaml
 from yaml import CLoader as Loader, CDumper as Dumper
+import xlsxwriter
 
-
-
-# # Custom Representer
-# def expenses_representer(dumper, data):
-#     return dumper.represent_mapping("!Expenses", data.__getstate__())
-
-
-# # Custom Constructor
-# def expenses_constructor(loader, node):
-#     print('---in---')
-#     state = loader.construct_mapping(node)
-#     obj = Expenses()  # Create an instance with dummy values
-#     obj.__setstate__(state)
-#     return obj
 
 class Expenses:
     """
     Object to track expenses and incomes based on the *Entry* and *Entries* objects.
     """
+
     default_class = "Autres"
     colors = [
-        # "#001219", # palet 1
-        # "#005F73",
-        # "#0A9396",
-        # "#94D2BD",
-        # "#E9D8A6",
-        # "#EE9B00",
-        # "#CA6702",
-        # "#BB3E03",
-        # "#AE2012",
-        # "#9B2226",
-
-        # '#008080', # palet 2
-        # '#E6E6FA',
-        # '#CC6633',
-        # '#D9CAB3',
-        # '#228B22',
-        # '#FFFFE0',
-        # '#000080',
-        # '#8A2BE2',
-        # '#F08080',
-        # '#A7C4BC',
-        # '#5C3A21',
-        # '#87CEEB',
-        # '#DAA520',
-        # '#848484',
-        # '#8B008B',
-
-        '#005f73', # palet 3
-        '#0081a7',
-        '#00b4d8',
-        '#90e0ef',
-        '#48cae4',
-        '#b5838d',
-        '#a3b18a',
-        '#6d6875',
-        '#555b4c',
-        '#2b2d42',
-        '#370617',
-        '#6a040f',
-
+        "#005f73",
+        "#0081a7",
+        "#00b4d8",
+        "#90e0ef",
+        "#48cae4",
+        "#b5838d",
+        "#a3b18a",
+        "#6d6875",
+        "#555b4c",
+        "#2b2d42",
+        "#370617",
+        "#6a040f",
     ]
 
     def __init__(self, default_class="Autres"):
@@ -88,7 +48,7 @@ class Expenses:
         entry.category = category_name
         if category_name not in self.categories:
             self.categories.append(category_name)
-        entry.price = round(entry.price, 2)        
+        entry.price = round(entry.price, 2)
         # self.entries.add_entry_object(entry)
         self.sums[category_name] = entry.price + (
             self.sums[category_name] if category_name in self.sums.keys() else 0
@@ -99,6 +59,50 @@ class Expenses:
         for category, amount in self.sums.items():
             str_res += f"{category}, {amount}\n"
         return str_res
+
+    def to_spreadsheet(self):
+        """
+        Export all expenses to a workbook in "expenses.xlsx"
+        """
+        # Workbook creation
+        workbook = xlsxwriter.Workbook("expenses.xlsx")
+        data_sheet = workbook.add_worksheet("RawData")
+        insight_sheet = workbook.add_worksheet("Insights")
+        date_format = workbook.add_format({"num_format": "yyyy-mm-dd"})
+
+        # Writing raw data
+        data_sheet.write(0, 0, "Date")
+        data_sheet.write(0, 1, "Month")
+        data_sheet.write(0, 2, "Amount")
+        data_sheet.write(0, 3, "Description")
+        data_sheet.write(0, 4, "Category")
+        data = []
+        for i, entry in enumerate(self.entries):
+            data.append(
+                [
+                    f"2025-{entry.month}-{entry.day}",
+                    f"2025-{entry.month}",
+                    entry.price,
+                    entry.description,
+                    entry.category,
+                ]
+            )
+        options = {
+            "data": data,
+            "columns": [
+                {"header": "Date", "total_string": "Totals", "format": date_format},
+                {"header": "Month", "total_string": "Totals"},
+                {
+                    "header": "Amount",
+                    "total_function": f"sum(B1:B{len(self.entries)+1})",
+                },
+                {"header": "Description"},
+                {"header": "Category"},
+            ],
+        }
+        data_sheet.add_table(f"A1:E{len(self.entries)+2}", options)
+        
+        workbook.close()
 
     def export_to_spreadsheet(self, filename="output_formulas.xlsx"):
         """
@@ -120,12 +124,16 @@ class Expenses:
 
         # Write formulas (e.g., SUMIF)
         sheet["E1"] = "Sum of A"
-        sheet["E2"] = '=SUMIF(A2:A{}, "A", B2:B{})'.format(len(self.entries) + 1, len(self.entries) + 1)
+        sheet["E2"] = '=SUMIF(A2:A{}, "A", B2:B{})'.format(
+            len(self.entries) + 1, len(self.entries) + 1
+        )
         sheet["F1"] = "Sum of B"
-        sheet["F2"] = '=SUMIF(A2:A{}, "B", B2:B{})'.format(len(self.entries) + 1, len(self.entries) + 1)
+        sheet["F2"] = '=SUMIF(A2:A{}, "B", B2:B{})'.format(
+            len(self.entries) + 1, len(self.entries) + 1
+        )
 
         wb.save(filename)
- 
+
     def time_graph(self, subplot=None, SavedFileName=None, show=False):
         labels = self.time_sums.keys()
         items = sum([self.time_sums[label] for label in labels], [])
@@ -159,7 +167,11 @@ class Expenses:
                     amounts_agg.append(amount)
             bottom = [bottom_dict[time] for time in times_agg]
             ax.bar(
-                times_agg, amounts_agg, label=category_name, bottom=bottom, color=color,
+                times_agg,
+                amounts_agg,
+                label=category_name,
+                bottom=bottom,
+                color=color,
             )
             for time, amount in zip(times_agg, amounts_agg):
                 bottom_dict[time] += amount
@@ -176,7 +188,7 @@ class Expenses:
         else:
             if show:
                 plt.show()
-    
+
     def income_pie(self, subplot=None, SavedFileName=None, show=False):
         labels = self.sums.keys()
         amounts = [(-self.sums[name] if self.sums[name] <= 0 else 0) for name in labels]
@@ -287,7 +299,7 @@ class Expenses:
             with open(filename, "w") as file:
                 file.write(json.dumps(obj))
         if tostring:
-            return json.dumps(obj)  
+            return json.dumps(obj)
 
     def save(self, filename="expenses.yml") -> None:
         res = yaml.dump(self, Dumper=Dumper)
@@ -301,10 +313,14 @@ class Expenses:
         Get the categories and sums by category of the *Expenses* object.
         Only the positive entries for now.
         """
-        positive_sums = {category: amount for category, amount in self.sums.items() if amount > 0}
-        negative_sums = {category: amount for category, amount in self.sums.items() if amount < 0}
+        positive_sums = {
+            category: amount for category, amount in self.sums.items() if amount > 0
+        }
+        negative_sums = {
+            category: amount for category, amount in self.sums.items() if amount < 0
+        }
         return positive_sums, negative_sums
-    
+
     def get_months_json(self) -> dict:
         """
         Get the months and sums by month of the *Expenses* object.
@@ -314,7 +330,7 @@ class Expenses:
         # months_sums = {}
         positive_sums = {}
         negative_sums = {}
-        entry : Entry = None
+        entry: Entry = None
         for entry in self.entries:
             if entry.month not in all_months:
                 all_months.append(entry.month)
@@ -328,9 +344,9 @@ class Expenses:
         ## New format
         income_json = {}
         outcome_json = {}
-        months_json = {'incomes' : income_json, 'outcomes' : outcome_json}
-        month = ''
-        transaction_direction = ''
+        months_json = {"incomes": income_json, "outcomes": outcome_json}
+        month = ""
+        transaction_direction = ""
         for entry in self.entries:
             month = entry.month
             if entry.price > 0:
@@ -342,11 +358,9 @@ class Expenses:
             json_to_fill[month] += entry.price
         print(months_json)
 
-
-
         return months_sums
 
-    def filter(self, time_filter : list[str] ,category_filter: list[str]) -> Self:
+    def filter(self, time_filter: list[str], category_filter: list[str]) -> Self:
         """
         Filter the entries of the *Expenses* object based on given filters (by category name and time).
         """
@@ -354,8 +368,12 @@ class Expenses:
         new_expenses.rules = self.rules
         for entry in self.entries:
             # Category filter
-            if entry.category in category_filter or '*' in category_filter: # and entry.day in time_filter:
-                if entry.month in time_filter or '*' in time_filter: # and entry.day in time_filter:
+            if (
+                entry.category in category_filter or "*" in category_filter
+            ):  # and entry.day in time_filter:
+                if (
+                    entry.month in time_filter or "*" in time_filter
+                ):  # and entry.day in time_filter:
                     new_expenses.add_expense(entry, entry.category)
                     new_expenses.entries.add_entry_object(entry)
         return new_expenses
