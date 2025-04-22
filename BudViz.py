@@ -7,7 +7,7 @@ from src.data_processing.expense import Expenses
 from src.data_processing.BNC_MasterCard_parser import BNC_MasterCard_parser
 from src.data_processing.expenses_parser import Expenses_parser
 from src.data_processing.parser_identifier import parser_identifier
-from src.data_processing.main import main
+from src.data_processing.main import main, test
 import os
 import argparse
 
@@ -57,4 +57,5 @@ def cli_entrypoint():
 
 
 if __name__ == "__main__":
-    cli_entrypoint()
+    test()
+    # cli_entrypoint()

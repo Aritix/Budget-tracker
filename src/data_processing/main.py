@@ -37,7 +37,7 @@ def main(files : list, rules : str, output_path, display: bool, update_refs: boo
     # expense_parser.load(entries, rules)
     # expenses = expense_parser.parse(update_rules=update_refs)
     expenses = Expenses()
-    expenses.rules = rules
+    expenses.set_rules(rules)
     expenses.entries = entries
 
     expense_parser = Expenses_parser()
@@ -92,3 +92,11 @@ def updateRules(toAdd: dict)-> any:
     expense_parser.parse_uncategorized()
 
     expenses.save()
+
+def load_objects(filename: str = None) -> Expenses:
+    expenses = Expenses.load(filename=filename)
+    return expenses
+
+def test():
+    expenses = Expenses.load()
+    expenses.to_spreadsheet()

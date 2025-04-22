@@ -20,10 +20,10 @@ def my_class_constructor(loader, node):
 
 class Rule:
     def __init__(self, classe_name: str, classe_index: int, patterns: list):
-        self.classe_name = classe_name
-        self.classe_index = classe_index
-        self.patterns = patterns
-        self.goal = 0
+        self.classe_name: str = classe_name
+        self.classe_index: int = classe_index
+        self.patterns : list[str] = patterns
+        self.goal : float = 0.0
 
     def add_patterns(self, pattern: str):
         self.patterns.append(pattern)
@@ -122,6 +122,30 @@ class Rules:
             if rule.classe_index == class_index:
                 return rule.classe_name
 
+    def get_rule_by_name(self, class_name: str) -> Rule:
+        """
+        Get a *Rule* object from the *Rules* object by its class name.
+        """
+        for rule in self:
+            if rule.classe_name == class_name:
+                return rule
+        raise ValueError(f"Rule with name {class_name} not found.")
+    
+    def edit_rule_pattern(self, category_name: str, changes: dict) -> None:
+        rule = self.get_rule_by_name(category_name)
+        for key, value in changes.items():
+            if key in rule.patterns:
+                rule.patterns.remove(key)
+                rule.patterns.append(value)
+
+    def delete_rule(self, name: str) -> None:
+        indexes_to_keep = []
+        for i, rule in enumerate(self):
+            if rule.classe_name != name:
+                indexes_to_keep.append(i)
+        self.elements = [e for i, e in enumerate(self.elements) if i in indexes_to_keep]
+        return
+
     def save(self, output_file: str = "rules.yaml") -> str:
         res = yaml.dump(self, Dumper=Dumper)
         if output_file:
@@ -133,7 +157,7 @@ class Rules:
         self.iteration = 0
         return self
 
-    def __next__(self):
+    def __next__(self) -> Rule:
         if self.iteration >= len(self.elements):
             raise StopIteration
         iteration = self.elements[self.iteration]

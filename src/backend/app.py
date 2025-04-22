@@ -1,6 +1,7 @@
 import os
 from flask import Flask, render_template, flash, request, redirect, url_for, send_file
 from src.data_processing.main import main, filter, getMetaData, getUncategorizedEntries, load, updateRules
+from src.backend.api import api
 from src.data_processing.expense import Expenses#, expenses_representer, expenses_constructor
 from werkzeug.utils import secure_filename
 import json
@@ -10,10 +11,10 @@ UPLOAD_FOLDER = "/tmp/BudViz/uploads"
 ALLOWED_EXTENSIONS = {"pdf", ".txt"}
 
 app = Flask(__name__)
+app.register_blueprint(api)
+app.config["environment"] = "PROD"
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
 # Configuration
-
 
 
 @app.route("/")

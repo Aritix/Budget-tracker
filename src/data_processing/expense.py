@@ -101,7 +101,7 @@ class Expenses:
             ],
         }
         data_sheet.add_table(f"A1:E{len(self.entries)+2}", options)
-        
+
         workbook.close()
 
     def export_to_spreadsheet(self, filename="output_formulas.xlsx"):
@@ -365,7 +365,7 @@ class Expenses:
         Filter the entries of the *Expenses* object based on given filters (by category name and time).
         """
         new_expenses = Expenses()
-        new_expenses.rules = self.rules
+        new_expenses.set_rules(self.rules)
         for entry in self.entries:
             # Category filter
             if (
@@ -377,6 +377,43 @@ class Expenses:
                     new_expenses.add_expense(entry, entry.category)
                     new_expenses.entries.add_entry_object(entry)
         return new_expenses
+
+    # Rules methods
+
+    def set_rules(self, rules: Rules) -> None:
+        """
+        Set *Rules* object and update categories.
+        """
+        self.rules = rules
+        self.categories = []
+        for rule in rules:
+            if rule.classe_name not in self.categories:
+                self.categories.append(rule.classe_name)
+
+    def add_rule_fields(
+        self, new_category_name: str, index: int, patterns: list[str]
+    ) -> None:
+        """
+        Add a new rule to the Rules object and update categories.
+        """
+        self.rules.add_rule_fields(new_category_name, index, patterns)
+        if new_category_name not in self.categories:
+            self.categories.append(new_category_name)
+
+    def delete_rule(self, category_name: str) -> None:
+        """
+        Delete a rule from the Rules objects and updates categories.
+        """
+        self.rules.delete_rule(category_name)
+        if category_name in self.categories:
+            self.categories.remove(category_name)
+
+    def edit_rule(self, category_name: str, changes: dict) -> None:
+        """
+        Edit the rules of the category specified. For each key in *changes*, changed this key as as pattern (if present) to its value.
+        """
+        self.rules.edit_rule_pattern(category_name, changes)
+
 
     def getUncategorizedEntries(self) -> Entries:
         filtered_entries = Entries()
